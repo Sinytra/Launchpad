@@ -39,6 +39,8 @@ neoForge {
         }
 
         configureEach {
+            systemProperty("mixin.debug.export", "true")
+
             logLevel = Level.DEBUG
         }
     }
@@ -63,7 +65,7 @@ repositories {
 }
 
 dependencies {
-    
+    implementation(libs.forgified.fabric.loader)
 }
 
 val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata") {

@@ -1,0 +1,2 @@
+[libraries]
+forgified-fabric-loader = { group = "org.sinytra", name = "forgified-fabric-loader", version = "2.5.75+0.18.4+26.1" }
