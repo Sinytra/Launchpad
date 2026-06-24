@@ -1,0 +1,13 @@
+{
+  "itemGroup.launchpad": "Example Mod Tab",
+  "block.launchpad.example_block": "Example Block",
+  "item.launchpad.example_item": "Example Item",
+
+  "launchpad.configuration.title": "Launchpad Configs",
+  "launchpad.configuration.section.launchpad.common.toml": "Launchpad Configs",
+  "launchpad.configuration.section.launchpad.common.toml.title": "Launchpad Configs",
+  "launchpad.configuration.items": "Item List",
+  "launchpad.configuration.logDirtBlock": "Log Dirt Block",
+  "launchpad.configuration.magicNumberIntroduction": "Magic Number Text",
+  "launchpad.configuration.magicNumber": "Magic Number"
+}
