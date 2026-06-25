@@ -4,6 +4,8 @@ import com.electronwill.nightconfig.core.Config;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.metadata.ContactInformation;
+import net.fabricmc.loader.api.metadata.ModDependency;
+import net.fabricmc.loader.api.metadata.ModDependency.Kind;
 import net.fabricmc.loader.api.metadata.Person;
 import net.fabricmc.loader.impl.metadata.LoaderModMetadata;
 import net.neoforged.api.distmarker.Dist;
@@ -12,15 +14,16 @@ import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
 import net.neoforged.fml.loading.moddiscovery.NightConfigWrapper;
 import net.neoforged.neoforgespi.language.IConfigurable;
 import net.neoforged.neoforgespi.language.IModFileInfo;
+import net.neoforged.neoforgespi.language.IModInfo.DependencySide;
+import net.neoforged.neoforgespi.language.IModInfo.DependencyType;
+import net.neoforged.neoforgespi.language.IModInfo.Ordering;
 import net.neoforged.neoforgespi.locating.IModFile;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -33,6 +36,8 @@ public final class MetadataConverter {
     // From ModInfo
     private static final Pattern VALID_VERSION = Pattern.compile("^\\d+.*");
     private static final String DEFAULT_LICENSE = "All Rights Reserved";
+    // Targeting these is currently not supported on Neo
+    private static final Set<String> SKIP_DEPS = Set.of("fabricloader", "java");
 
     public static IModFileInfo createNeoMetadata(LoaderModMetadata metadata, IModFile modFile, Dist dist) {
         String modid = metadata.getId();
@@ -49,22 +54,21 @@ public final class MetadataConverter {
             FABRIC_METADATA, metadata,
             LAUNCHPAD_ACTIVE, true
         ));
-        config.add("modproperties", modid);
 
-        Config modListConfig = config.createSubConfig();
-        modListConfig.add("modId", modid);
+        Config modConfig = config.createSubConfig();
+        modConfig.add("modId", modid);
 
         String version = normalizeVersion(metadata.getVersion().getFriendlyString());
         // Validate version string. If it's invalid, we'll let FML assign a default version instead
         if (VALID_VERSION.matcher(version).matches()) {
-            modListConfig.add("version", version);
+            modConfig.add("version", version);
         } else {
             LOGGER.warn("Ignoring invalid version for mod {} in file {}", modid, modFile.getFilePath());
         }
 
-        modListConfig.add("displayName", metadata.getName());
-        modListConfig.add("description", metadata.getDescription());
-        metadata.getIconPath(-1).ifPresent(icon -> modListConfig.add("logoFile", icon));
+        modConfig.add("displayName", metadata.getName());
+        modConfig.add("description", metadata.getDescription());
+        metadata.getIconPath(-1).ifPresent(icon -> modConfig.add("logoFile", icon));
 
         ContactInformation contact = metadata.getContact();
         contact.get("homepage")
@@ -75,27 +79,42 @@ public final class MetadataConverter {
             // Ensure string is valid url
             .filter(MetadataConverter::isValidURL)
             .ifPresent(url -> {
-                modListConfig.add("modUrl", url);
-                modListConfig.add("displayURL", url);
+                modConfig.add("modUrl", url);
+                modConfig.add("displayURL", url);
             });
 
         contact.get("issues")
             .filter(MetadataConverter::isValidURL)
-            .ifPresent(url -> modListConfig.add("issueTrackerURL", url));
+            .ifPresent(url -> modConfig.add("issueTrackerURL", url));
 
-        modListConfig.add("authors", metadata.getAuthors().stream()
+        modConfig.add("authors", metadata.getAuthors().stream()
             .map(Person::getName)
             .collect(Collectors.joining(", ")));
 
-        modListConfig.add("credits", metadata.getContributors().stream()
+        modConfig.add("credits", metadata.getContributors().stream()
             .map(Person::getName)
             .collect(Collectors.joining(", ")));
 
-        config.add("mods", List.of(modListConfig));
+        config.add("mods", List.of(modConfig));
+
+        if (!metadata.getDependencies().isEmpty()) {
+            List<Config> depConfigs = new ArrayList<>();
+
+            for (ModDependency dependency : metadata.getDependencies()) {
+                Config depConfig = convertDependency(dependency);
+                if (depConfig != null) {
+                    depConfigs.add(depConfig);
+                }
+            }
+
+            if (!depConfigs.isEmpty()) {
+                config.add(List.of("dependencies", modid), depConfigs);
+            }
+        }
 
         List<Config> mixins = metadata.getMixinConfigs(distToEnv(dist)).stream()
             .map(str -> {
-                Config mixinConfig = modListConfig.createSubConfig();
+                Config mixinConfig = modConfig.createSubConfig();
                 mixinConfig.add("config", str);
                 return mixinConfig;
             })
@@ -107,6 +126,32 @@ public final class MetadataConverter {
         IConfigurable configurable = new NightConfigWrapper(config);
         return new ModFileInfo((ModFile) modFile, configurable, f -> {
         }, List.of());
+    }
+
+    @Nullable
+    private static Config convertDependency(ModDependency dependency) {
+        if (SKIP_DEPS.contains(dependency.getModId())) {
+            return null;
+        }
+
+        Config config = Config.inMemory();
+
+        config.add("modId", dependency.getModId());
+        config.add("type", convertDepType(dependency.getKind()).name().toLowerCase(Locale.ROOT));
+        config.add("versionRange", VersionConverter.convert(dependency.getVersionRequirements()));
+        config.add("ordering", Ordering.NONE.name());
+        config.add("side", DependencySide.BOTH.name());
+
+        return config;
+    }
+
+    private static DependencyType convertDepType(Kind kind) {
+        return switch (kind) {
+            case DEPENDS -> DependencyType.REQUIRED;
+            case RECOMMENDS, SUGGESTS -> DependencyType.OPTIONAL;
+            case CONFLICTS -> DependencyType.DISCOURAGED;
+            case BREAKS -> DependencyType.INCOMPATIBLE;
+        };
     }
 
     private static String normalizeVersion(String version) {
@@ -132,5 +177,6 @@ public final class MetadataConverter {
         };
     }
 
-    private MetadataConverter() {}
+    private MetadataConverter() {
+    }
 }

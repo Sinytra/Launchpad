@@ -48,7 +48,7 @@ public class FabricJarInJarLocator implements IDependencyLocator {
         if (metadata == null) {
             return;
         }
-        
+
         for (NestedJarEntry entry : metadata.getJars()) {
             IModFile nestedFile = JarInJarHelpers.loadModFileFrom(parent, entry.getFile(), pipeline);
             output.add(nestedFile);
