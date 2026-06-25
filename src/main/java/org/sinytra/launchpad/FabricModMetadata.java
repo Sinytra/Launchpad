@@ -10,6 +10,7 @@ import net.neoforged.fml.loading.LogMarkers;
 import net.neoforged.fml.loading.moddiscovery.readers.JarModsDotTomlModFileReader;
 import net.neoforged.neoforgespi.locating.ModFileInfoParser;
 import org.jetbrains.annotations.Nullable;
+import org.sinytra.launchpad.service.FabricModJsonFileReader;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -19,8 +20,8 @@ import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import static org.sinytra.launchpad.LaunchpadProperties.ENABLE_LAUNCHPAD;
-import static org.sinytra.launchpad.LaunchpadProperties.OVERRIDES;
+import static org.sinytra.launchpad.LaunchpadConstants.ENABLE_LAUNCHPAD;
+import static org.sinytra.launchpad.LaunchpadConstants.OVERRIDES;
 
 public class FabricModMetadata {
     private static final Logger LOGGER = LogUtils.getLogger();

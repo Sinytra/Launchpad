@@ -62,10 +62,15 @@ repositories {
         name = "Sinytra"
         url = uri("https://maven.sinytra.org")
     }
+    maven {
+        name = "FabricMC"
+        url = uri("https://maven.fabricmc.net")
+    }
 }
 
 dependencies {
     implementation(libs.forgified.fabric.loader)
+    implementation(libs.clazz.tweaker)
 }
 
 val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata") {

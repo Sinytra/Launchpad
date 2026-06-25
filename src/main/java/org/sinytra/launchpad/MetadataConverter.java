@@ -24,10 +24,10 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.sinytra.launchpad.LaunchpadProperties.FABRIC_METADATA;
-import static org.sinytra.launchpad.LaunchpadProperties.LAUNCHPAD_ACTIVE;
+import static org.sinytra.launchpad.LaunchpadConstants.FABRIC_METADATA;
+import static org.sinytra.launchpad.LaunchpadConstants.LAUNCHPAD_ACTIVE;
 
-public class MetadataConverter {
+public final class MetadataConverter {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // From ModInfo
@@ -131,4 +131,6 @@ public class MetadataConverter {
             case DEDICATED_SERVER -> EnvType.SERVER;
         };
     }
+
+    private MetadataConverter() {}
 }
