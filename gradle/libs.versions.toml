@@ -1,3 +1,7 @@
+[plugins]
+moddev = { id = "net.neoforged.moddev", version = "2.0.141" }
+shadow = { id = "com.gradleup.shadow", version = "9.4.2" }
+
 [libraries]
-forgified-fabric-loader = { group = "org.sinytra", name = "forgified-fabric-loader", version = "2.5.76+0.18.4+26.1" }
+forgified-fabric-loader = { group = "org.sinytra", name = "forgified-fabric-loader", version = "2.5.77+0.18.4+26.1" }
 clazz-tweaker = { group = "net.fabricmc", name = "class-tweaker", version = "0.3.0-beta.2" }

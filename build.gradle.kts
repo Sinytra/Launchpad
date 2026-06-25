@@ -1,9 +1,11 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.slf4j.event.Level
 
 plugins {
     `java-library`
     `maven-publish`
-    id("net.neoforged.moddev") version "2.0.141"
+    alias(libs.plugins.moddev)
+    alias(libs.plugins.shadow) apply false
     idea
 }
 
@@ -25,11 +27,12 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+val shade = configurations.create("shade")
 val gameLibrary = sourceSets.create("gameLibrary")
 
 neoForge {
     version = neo_version
-    
+
     addModdingDependenciesTo(gameLibrary)
 
     runs {
@@ -77,6 +80,9 @@ repositories {
 }
 
 dependencies {
+    shade(libs.forgified.fabric.loader)
+    shade(libs.clazz.tweaker) { isTransitive = false }
+
     implementation(libs.forgified.fabric.loader)
     implementation(libs.clazz.tweaker)
 
@@ -101,6 +107,63 @@ sourceSets.main {
 }
 neoForge.ideSyncTask(generateModMetadata)
 
+val depsJar = tasks.register("depsJar", ShadowJar::class) {
+    configurations = listOf(shade)
+    archiveClassifier.set("deps")
+}
+
+val gameLibraryJar = tasks.register("gameLibraryJar", Jar::class) {
+    from(gameLibrary.output)
+
+    manifest.attributes("Implementation-Version" to project.version)
+    manifest.from("src/gameLibrary/resources/META-INF/MANIFEST.MF")
+
+    archiveClassifier.set("game")
+}
+localJarJar(
+    "gameLibraryLocalJarJar",
+    "org.sinytra.launchpad:game-library",
+    project.version.toString(),
+    gameLibraryJar
+)
+
+val dummyLoaderJar = tasks.register("dummyLoaderJar", Jar::class) {
+    manifest.attributes(
+        "FMLModType" to "LIBRARY",
+        "Automatic-Module-Name" to "net.fabricmc.loader",
+        "Implementation-Version" to "999.999.999",
+    )
+    archiveClassifier.set("dummy")
+}
+localJarJar(
+    "dummyFabricLoaderLocalJarJar",
+    "org.sinytra:forgified-fabric-loader",
+    "999.999.999",
+    dummyLoaderJar
+)
+
+val fullJar = tasks.register("fullJar", ShadowJar::class) {
+    from(
+        depsJar.flatMap { it.archiveFile.map(::zipTree) },
+        tasks.jar.flatMap { it.archiveFile.map(::zipTree) }
+    )
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    mergeServiceFiles()
+    filesNotMatching("META-INF/services/**") { duplicatesStrategy = DuplicatesStrategy.FAIL }
+
+    relocate("net.fabricmc.classtweaker", "org.sinytra.launchpad.reloc.net.fabricmc.classtweaker")
+    manifest.attributes(tasks.jar.get().manifest.attributes)
+    archiveClassifier.set("full")
+
+    doLast {
+        val githubOutput = System.getenv("GITHUB_OUTPUT")
+        if (githubOutput != null) {
+            File(githubOutput).appendText("PRIMARY_ARTIFACT=${archiveFile.get().asFile.absolutePath}")
+        }
+    }
+}
+
 tasks {
     withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
@@ -109,19 +172,19 @@ tasks {
     named<Wrapper>("wrapper") {
         distributionType = Wrapper.DistributionType.BIN
     }
+
+    assemble {
+        dependsOn(fullJar)
+    }
 }
 
-val gameLibraryJar = tasks.register("gameLibraryJar", Jar::class) {
-    from(gameLibrary.output)
-    manifest.attributes("Implementation-Version" to project.version)
-    archiveClassifier.set("game")
+configurations.runtimeElements {
+    setExtendsFrom(emptySet())
+    outgoing {
+        artifacts.clear()
+        artifact(fullJar)
+    }
 }
-localJarJar(
-    "modJarConfig",
-    "org.sinytra.launchpad:game-library",
-    project.version.toString(),
-    gameLibraryJar
-)
 
 publishing {
     publications {
@@ -129,8 +192,20 @@ publishing {
             from(components["java"])
         }
     }
+
     repositories {
-        mavenLocal()
+        val env = System.getenv()
+        if (env["MAVEN_URL"] != null) {
+            repositories.maven {
+                url = uri(env["MAVEN_URL"] as String)
+                if (env["MAVEN_USERNAME"] != null) {
+                    credentials {
+                        username = env["MAVEN_USERNAME"]
+                        password = env["MAVEN_PASSWORD"]
+                    }
+                }
+            }
+        }
     }
 }
 
