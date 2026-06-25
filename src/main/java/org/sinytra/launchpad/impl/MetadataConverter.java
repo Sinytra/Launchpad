@@ -1,4 +1,4 @@
-package org.sinytra.launchpad;
+package org.sinytra.launchpad.impl;
 
 import com.electronwill.nightconfig.core.Config;
 import com.mojang.logging.LogUtils;
@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.sinytra.launchpad.LaunchpadConstants.FABRIC_METADATA;
-import static org.sinytra.launchpad.LaunchpadConstants.LAUNCHPAD_ACTIVE;
+import static org.sinytra.launchpad.ImplConstants.FABRIC_METADATA;
+import static org.sinytra.launchpad.ImplConstants.LAUNCHPAD_ACTIVE;
 
 public final class MetadataConverter {
     private static final Logger LOGGER = LogUtils.getLogger();

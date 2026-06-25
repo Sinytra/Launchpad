@@ -1,4 +1,4 @@
-package org.sinytra.launchpad;
+package org.sinytra.launchpad.impl;
 
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import static org.sinytra.launchpad.LaunchpadConstants.ENABLE_LAUNCHPAD;
-import static org.sinytra.launchpad.LaunchpadConstants.OVERRIDES;
+import static org.sinytra.launchpad.api.Constants.ENABLE_LAUNCHPAD;
+import static org.sinytra.launchpad.api.Constants.OVERRIDES;
 
 public class FabricModMetadata {
     private static final Logger LOGGER = LogUtils.getLogger();

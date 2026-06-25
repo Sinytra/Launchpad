@@ -1,4 +1,4 @@
-package org.sinytra.launchpad;
+package org.sinytra.launchpad.impl;
 
 import net.fabricmc.classtweaker.api.ClassTweakerReader;
 import net.fabricmc.classtweaker.api.visitor.AccessWidenerVisitor;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class ClassTweakerConverter {
+public final class ClassTweakerConverterImpl {
 
     public static String createAccessTransformer(BufferedReader reader, String fileName) throws IOException {
         Map<String, AccessType> classAccess = new HashMap<>();
@@ -91,10 +91,10 @@ public final class ClassTweakerConverter {
                 .append(name)
                 .append("\n");
         }));
-        
+
         return builder.toString();
     }
 
-    private ClassTweakerConverter() {
+    private ClassTweakerConverterImpl() {
     }
 }

@@ -11,7 +11,7 @@ import net.neoforged.neoforgespi.locating.IModFile.Type;
 import net.neoforged.neoforgespi.locating.IModFileReader;
 import net.neoforged.neoforgespi.locating.ModFileDiscoveryAttributes;
 import org.jetbrains.annotations.Nullable;
-import org.sinytra.launchpad.FabricModMetadata;
+import org.sinytra.launchpad.impl.FabricModMetadata;
 import org.slf4j.Logger;
 
 public class FabricModJsonFileReader implements IModFileReader {

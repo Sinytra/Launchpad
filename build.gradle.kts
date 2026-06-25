@@ -75,9 +75,6 @@ dependencies {
 
 val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata") {
     val replaceProperties = mapOf(
-        "minecraft_version" to minecraft_version,
-        "minecraft_version_range" to minecraft_version_range,
-        "neo_version" to neo_version,
         "mod_id" to mod_id,
         "mod_name" to mod_name,
         "mod_license" to mod_license,
@@ -93,7 +90,6 @@ sourceSets.main {
 }
 neoForge.ideSyncTask(generateModMetadata)
 
-// Example configuration to allow publishing using the maven-publish plugin
 publishing {
     publications {
         register<MavenPublication>("mavenJava") {
