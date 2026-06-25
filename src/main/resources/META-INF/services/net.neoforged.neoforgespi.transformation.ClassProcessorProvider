@@ -1,1 +1,2 @@
 org.sinytra.launchpad.service.FabricAccessTransformerServiceProvider
+org.sinytra.launchpad.service.PreLaunchEntrypointInvoker

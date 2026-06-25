@@ -1,0 +1,50 @@
+package org.sinytra.launchpad.game;
+
+import com.mojang.logging.LogUtils;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.progress.ProgressMeter;
+import net.neoforged.fml.loading.progress.StartupNotificationManager;
+import org.sinytra.launchpad.game.mixin.registry.NeoForgeRegistriesSetupAccessor;
+import org.sinytra.launchpad.impl.LaunchpadImpl;
+import org.slf4j.Logger;
+
+public class EntrypointRunner {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    public static void invokeEntrypoints() {
+        if (LaunchpadImpl.hasLoadingError()) {
+            LOGGER.error("Skipping fabric entrypoint invocation due to previous error");
+            return;
+        }
+
+        LOGGER.debug("Adding registry callbacks");
+        NeoForgeRegistriesSetupAccessor.invokeModifyRegistries(null);
+
+        ProgressMeter progress = StartupNotificationManager.prependProgressBar("[Launchpad] Loading mods", 0);
+
+        LOGGER.debug("Invoking Fabric entrypoints");
+        ScopedValue.where(LaunchpadImpl.LOADING, true).run(() -> {
+            try {
+                FabricLoader loader = FabricLoader.getInstance();
+
+                loader.invokeEntrypoints("main", ModInitializer.class, ModInitializer::onInitialize);
+
+                if (FMLEnvironment.getDist() == Dist.CLIENT) {
+                    loader.invokeEntrypoints("client", ClientModInitializer.class, ClientModInitializer::onInitializeClient);
+                } else {
+                    loader.invokeEntrypoints("server", DedicatedServerModInitializer.class, DedicatedServerModInitializer::onInitializeServer);
+                }
+            } catch (Throwable t) {
+                LOGGER.error("Failed to invoke mod entrypoint", t);
+                LaunchpadImpl.addLoadingException(t, "Failed to invoke mod entrypoint");
+            }
+        });
+
+        progress.complete();
+    }
+}

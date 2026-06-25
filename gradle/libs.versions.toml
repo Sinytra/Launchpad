@@ -1,3 +1,3 @@
 [libraries]
-forgified-fabric-loader = { group = "org.sinytra", name = "forgified-fabric-loader", version = "2.5.75+0.18.4+26.1" }
+forgified-fabric-loader = { group = "org.sinytra", name = "forgified-fabric-loader", version = "2.5.76+0.18.4+26.1" }
 clazz-tweaker = { group = "net.fabricmc", name = "class-tweaker", version = "0.3.0-beta.2" }

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class ClassTweakerConverterImpl {
+public final class ClassTweakerConverter {
 
     public static String createAccessTransformer(BufferedReader reader, String fileName) throws IOException {
         Map<String, AccessType> classAccess = new HashMap<>();
@@ -95,6 +95,6 @@ public final class ClassTweakerConverterImpl {
         return builder.toString();
     }
 
-    private ClassTweakerConverterImpl() {
+    private ClassTweakerConverter() {
     }
 }

@@ -24,6 +24,12 @@ public class FabricModJsonFileReader implements IModFileReader {
         return createModFile(jar, attributes.withReader(this));
     }
 
+    @Override
+    public int getPriority() {
+        // Run after neoforge.mods.toml reader
+        return -500;
+    }
+
     @Nullable
     public static IModFile createModFile(JarContents contents, ModFileDiscoveryAttributes discoveryAttributes) {
         if (!contents.containsFile(FMJ)) {

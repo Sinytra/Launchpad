@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "package": "org.sinytra.launchpad.game.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "launch.DatagenModLoaderMixin",
+    "registry.NeoForgeRegistriesSetupAccessor",
+    "registry.NeoForgeRegistriesSetupMixin"
+  ],
+  "client": [
+    "launch.MinecraftMixin"
+  ],
+  "server": [
+    "launch.ServerMainMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

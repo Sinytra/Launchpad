@@ -25,8 +25,12 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+val gameLibrary = sourceSets.create("gameLibrary")
+
 neoForge {
     version = neo_version
+    
+    addModdingDependenciesTo(gameLibrary)
 
     runs {
         create("client") {
@@ -49,10 +53,13 @@ neoForge {
         create(mod_id) {
             sourceSet(sourceSets.main.get())
         }
+        create("$mod_id-game") {
+            sourceSet(gameLibrary)
+        }
     }
 }
 
-val localRuntime by configurations.creating
+val localRuntime = configurations.create("localRuntime")
 configurations {
     runtimeClasspath.get().extendsFrom(localRuntime)
 }
@@ -66,11 +73,15 @@ repositories {
         name = "FabricMC"
         url = uri("https://maven.fabricmc.net")
     }
+    mavenLocal()
 }
 
 dependencies {
     implementation(libs.forgified.fabric.loader)
     implementation(libs.clazz.tweaker)
+
+    "gameLibraryImplementation"(libs.forgified.fabric.loader)
+    "gameLibraryImplementation"(sourceSets.main.get().output)
 }
 
 val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata") {
@@ -90,6 +101,28 @@ sourceSets.main {
 }
 neoForge.ideSyncTask(generateModMetadata)
 
+tasks {
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+    }
+
+    named<Wrapper>("wrapper") {
+        distributionType = Wrapper.DistributionType.BIN
+    }
+}
+
+val gameLibraryJar = tasks.register("gameLibraryJar", Jar::class) {
+    from(gameLibrary.output)
+    manifest.attributes("Implementation-Version" to project.version)
+    archiveClassifier.set("game")
+}
+localJarJar(
+    "modJarConfig",
+    "org.sinytra.launchpad:game-library",
+    project.version.toString(),
+    gameLibraryJar
+)
+
 publishing {
     publications {
         register<MavenPublication>("mavenJava") {
@@ -101,19 +134,24 @@ publishing {
     }
 }
 
-tasks {
-    withType<JavaCompile>().configureEach {
-        options.encoding = "UTF-8"
-    }
-
-    named<Wrapper>("wrapper") {
-        distributionType = Wrapper.DistributionType.BIN
-    }
-}
-
 idea {
     module {
         isDownloadSources = true
         isDownloadJavadoc = true
+    }
+}
+
+fun localJarJar(configName: String, mavenCoords: String, version: String, artifact: Any) {
+    configurations.create(configName) {
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
+        }
+        outgoing {
+            artifact(artifact)
+            capability("$mavenCoords:$version")
+        }
+    }
+    dependencies {
+        jarJar(project(":")) { capabilities { requireCapability(mavenCoords) } }
     }
 }

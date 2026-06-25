@@ -12,7 +12,7 @@ import net.neoforged.neoforgespi.transformation.ClassProcessorProvider;
 import net.neoforged.neoforgespi.transformation.ProcessorName;
 import org.sinytra.launchpad.ImplConstants;
 import org.sinytra.launchpad.api.Constants;
-import org.sinytra.launchpad.impl.ClassTweakerConverterImpl;
+import org.sinytra.launchpad.impl.ClassTweakerConverter;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -50,7 +50,7 @@ public class FabricAccessTransformerServiceProvider implements ClassProcessorPro
                 }
                 
                 String fileName = Arrays.asList(ctPath.split("/")).getLast();
-                String converted = ClassTweakerConverterImpl.createAccessTransformer(new BufferedReader(new InputStreamReader(in)), fileName);
+                String converted = ClassTweakerConverter.createAccessTransformer(new BufferedReader(new InputStreamReader(in)), fileName);
 
                 try (InputStream atIn = new ByteArrayInputStream(converted.getBytes(StandardCharsets.UTF_8))) {
                     engine.loadAT(new InputStreamReader(atIn), ctPath);   
