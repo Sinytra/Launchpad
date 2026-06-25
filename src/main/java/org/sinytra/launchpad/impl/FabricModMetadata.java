@@ -8,6 +8,7 @@ import net.neoforged.fml.jarcontents.JarContents;
 import net.neoforged.fml.jarcontents.JarResource;
 import net.neoforged.fml.loading.LogMarkers;
 import net.neoforged.fml.loading.moddiscovery.readers.JarModsDotTomlModFileReader;
+import net.neoforged.fml.util.PathPrettyPrinting;
 import net.neoforged.neoforgespi.locating.ModFileInfoParser;
 import org.jetbrains.annotations.Nullable;
 import org.sinytra.launchpad.service.FabricModJsonFileReader;
@@ -52,8 +53,8 @@ public class FabricModMetadata {
         try (InputStream ins = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))) {
             LoaderModMetadata metadata = ModMetadataParser.parseMetadata(
                 ins,
-                path.toString(),
-                Collections.emptyList(), // TODO JiJ support
+                PathPrettyPrinting.prettyPrint(path),
+                Collections.emptyList(),
                 new VersionOverrides(),
                 new DependencyOverrides(Path.of("nonexistent")),
                 false

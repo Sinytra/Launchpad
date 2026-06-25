@@ -8,6 +8,12 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class LaunchpadImpl {
+    public static final String NAMESPACE = "launchpad";
+    // Internal metadata properties
+    public static final String LAUNCHPAD_ACTIVE = "launchpad:active";
+    // Provided by forgified-fabric-loader
+    public static final String FABRIC_METADATA = "fabric:metadata";
+
     public static final ScopedValue<Boolean> LOADING = ScopedValue.newInstance();
 
     public static boolean hasLoadingError() {

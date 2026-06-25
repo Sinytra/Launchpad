@@ -35,12 +35,13 @@ public class FabricModJsonFileReader implements IModFileReader {
         if (!contents.containsFile(FMJ)) {
             return null;
         }
-        LOGGER.debug(LogMarkers.SCAN, "Found {} mod: {}", FMJ, contents.getPrimaryPath());
 
         FabricModMetadata metadata = FabricModMetadata.parse(contents);
         if (metadata == null) {
             return null;
         }
+
+        LOGGER.debug(LogMarkers.SCAN, "Found {} mod: {}", FMJ, contents.getPrimaryPath());
 
         Dist dist = FMLLoader.getCurrent().getDist();
         ModJarMetadata mjm = new ModJarMetadata();

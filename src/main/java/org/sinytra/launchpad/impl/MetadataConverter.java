@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.sinytra.launchpad.ImplConstants.FABRIC_METADATA;
-import static org.sinytra.launchpad.ImplConstants.LAUNCHPAD_ACTIVE;
+import static org.sinytra.launchpad.impl.LaunchpadImpl.FABRIC_METADATA;
+import static org.sinytra.launchpad.impl.LaunchpadImpl.LAUNCHPAD_ACTIVE;
 
 public final class MetadataConverter {
     private static final Logger LOGGER = LogUtils.getLogger();

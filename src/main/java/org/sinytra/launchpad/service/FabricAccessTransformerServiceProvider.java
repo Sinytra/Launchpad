@@ -10,9 +10,9 @@ import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
 import net.neoforged.neoforgespi.locating.IModFile;
 import net.neoforged.neoforgespi.transformation.ClassProcessorProvider;
 import net.neoforged.neoforgespi.transformation.ProcessorName;
-import org.sinytra.launchpad.ImplConstants;
 import org.sinytra.launchpad.api.Constants;
 import org.sinytra.launchpad.impl.ClassTweakerConverter;
+import org.sinytra.launchpad.impl.LaunchpadImpl;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -28,12 +28,12 @@ public class FabricAccessTransformerServiceProvider implements ClassProcessorPro
         AccessTransformerEngine engine = AccessTransformerEngine.newEngine();
 
         for (ModFileInfo modFileInfo : FMLLoader.getCurrent().getLoadingModList().getModFiles()) {
-            if (modFileInfo.getFileProperties().get(ImplConstants.LAUNCHPAD_ACTIVE) != Boolean.TRUE) {
+            if (modFileInfo.getFileProperties().get(LaunchpadImpl.LAUNCHPAD_ACTIVE) != Boolean.TRUE) {
                 continue;
             }
 
             LoaderModMetadata metadata = (LoaderModMetadata) Objects.requireNonNull(
-                modFileInfo.getFileProperties().get(ImplConstants.FABRIC_METADATA),
+                modFileInfo.getFileProperties().get(LaunchpadImpl.FABRIC_METADATA),
                 "Missing launchpad fabric mod metadata"
             );
             String ctPath = metadata.getClassTweaker();
