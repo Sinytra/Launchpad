@@ -1,4 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import me.modmuss50.mpp.ReleaseType
+import me.modmuss50.mpp.platforms.modrinth.ModrinthEnvironment
 import org.slf4j.event.Level
 
 plugins {
@@ -6,6 +8,8 @@ plugins {
     `maven-publish`
     alias(libs.plugins.moddev)
     alias(libs.plugins.shadow) apply false
+    alias(libs.plugins.gradleutils)
+    alias(libs.plugins.publishing)
     idea
 }
 
@@ -16,14 +20,35 @@ val mod_name: String by project
 val mod_license: String by project
 val neo_version: String by project
 val minecraft_version: String by project
-val minecraft_version_range: String by project
 
-version = mod_version
+val compatible_versions: String by project
+val curseforge_id: String by project
+val modrinth_id: String by project
+val github_repo: String by project
+val publish_branch: String by project
+
+val PUBLISH_RELEASE_TYPE = providers.environmentVariable("PUBLISH_RELEASE_TYPE")
+
+version = "0.0.0-SNAPSHOT"
 group = mod_group_id
 
 base {
     archivesName = mod_id
 }
+
+gradleutils.version {
+    branches {
+        suffixBranch()
+        suffixExemptedBranch(minecraft_version)
+        suffixExemptedBranch("26.1.x")
+    }
+}
+version = "${gradleutils.version.toString().removePrefix("v")}+$minecraft_version"
+// Append git commit hash for dev versions
+if (!PUBLISH_RELEASE_TYPE.isPresent) {
+    version = "$version+dev-${gradleutils.gitInfo["hash"]}"
+}
+println("Version: $version")
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
@@ -76,7 +101,6 @@ repositories {
         name = "FabricMC"
         url = uri("https://maven.fabricmc.net")
     }
-    mavenLocal()
 }
 
 dependencies {
@@ -206,6 +230,36 @@ publishing {
                 }
             }
         }
+    }
+}
+
+publishMods {
+    file = fullJar.flatMap { it.archiveFile }
+    changelog = providers.environmentVariable("CHANGELOG").orElse("# ${project.version}")
+    type = PUBLISH_RELEASE_TYPE.orElse("alpha").map(ReleaseType::of)
+    modLoaders = listOf("neoforge")
+    dryRun = !providers.environmentVariable("CI").isPresent
+    displayName = "[$minecraft_version] Launchpad ${project.version}"
+    
+    val compatibleVersions = compatible_versions.split(",")
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = github_repo
+        commitish = publish_branch
+    }
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        projectId = curseforge_id
+        minecraftVersions = compatibleVersions
+        client = true
+        server = true
+    }
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        projectId = modrinth_id
+        minecraftVersions = compatibleVersions
+        environment = ModrinthEnvironment.CLIENT_OR_SERVER
     }
 }
 
