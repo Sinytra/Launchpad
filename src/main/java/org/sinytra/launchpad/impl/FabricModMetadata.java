@@ -2,6 +2,7 @@ package org.sinytra.launchpad.impl;
 
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
+import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.impl.metadata.*;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.jarcontents.JarContents;
@@ -20,12 +21,15 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.jar.Attributes;
 
 import static org.sinytra.launchpad.api.Constants.ENABLE_LAUNCHPAD;
 import static org.sinytra.launchpad.api.Constants.OVERRIDES;
 
 public class FabricModMetadata {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String LOOM_GENERATED_PROPERTY = "fabric-loom:generated";
+    private static final String LOOM_REMAP_ATTRIBUTE = "Fabric-Loom-Remap";
 
     private final LoaderModMetadata metadata;
 
@@ -97,6 +101,15 @@ public class FabricModMetadata {
         } catch (Exception e) {
             throw new RuntimeException("Failed to read " + resource + " from " + path, e);
         }
+    }
+
+    public boolean isGenerated(Attributes manifestAttributes) {
+        CustomValue generatedValue = this.metadata.getCustomValue(LOOM_GENERATED_PROPERTY);
+        if (generatedValue != null && generatedValue.getType() == CustomValue.CvType.BOOLEAN && generatedValue.getAsBoolean()) {
+            String loomRemapAttribute = manifestAttributes.getValue(LOOM_REMAP_ATTRIBUTE);
+            return loomRemapAttribute == null || !loomRemapAttribute.equals("true");
+        }
+        return false;
     }
 
     public ModFileInfoParser createNeoMetadataFactory(Dist dist) {

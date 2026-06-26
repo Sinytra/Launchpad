@@ -6,6 +6,7 @@ import net.neoforged.fml.jarcontents.JarContents;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.LogMarkers;
 import net.neoforged.fml.loading.moddiscovery.ModJarMetadata;
+import net.neoforged.fml.loading.moddiscovery.readers.JarModsDotTomlModFileReader;
 import net.neoforged.neoforgespi.locating.IModFile;
 import net.neoforged.neoforgespi.locating.IModFile.Type;
 import net.neoforged.neoforgespi.locating.IModFileReader;
@@ -13,6 +14,8 @@ import net.neoforged.neoforgespi.locating.ModFileDiscoveryAttributes;
 import org.jetbrains.annotations.Nullable;
 import org.sinytra.launchpad.impl.FabricModMetadata;
 import org.slf4j.Logger;
+
+import java.util.jar.Attributes;
 
 public class FabricModJsonFileReader implements IModFileReader {
     public static final String FMJ = "fabric.mod.json";
@@ -44,6 +47,12 @@ public class FabricModJsonFileReader implements IModFileReader {
         LOGGER.debug(LogMarkers.SCAN, "Found {} mod: {}", FMJ, contents.getPrimaryPath());
 
         Dist dist = FMLLoader.getCurrent().getDist();
+        Attributes manifest = contents.getManifest().getMainAttributes();
+
+        if (metadata.isGenerated(manifest)) {
+            return IModFile.create(contents, JarModsDotTomlModFileReader::manifestParser, IModFile.Type.GAMELIBRARY, ModFileDiscoveryAttributes.DEFAULT);
+        }
+
         ModJarMetadata mjm = new ModJarMetadata();
         IModFile modFile = IModFile.create(contents, mjm, metadata.createNeoMetadataFactory(dist), Type.MOD, discoveryAttributes);
         mjm.setModFile(modFile);
