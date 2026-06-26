@@ -9,11 +9,11 @@ plugins {
     alias(libs.plugins.moddev)
     alias(libs.plugins.shadow) apply false
     alias(libs.plugins.gradleutils)
+    alias(libs.plugins.licenser)
     alias(libs.plugins.publishing)
     idea
 }
 
-val mod_version: String by project
 val mod_group_id: String by project
 val mod_id: String by project
 val mod_name: String by project
@@ -87,6 +87,11 @@ neoForge {
     }
 }
 
+license {
+    header = resources.text.fromFile("HEADER")
+    skipExistingHeaders = true
+}
+
 val localRuntime = configurations.create("localRuntime")
 configurations {
     runtimeClasspath.get().extendsFrom(localRuntime)
@@ -119,7 +124,7 @@ val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata"
         "mod_id" to mod_id,
         "mod_name" to mod_name,
         "mod_license" to mod_license,
-        "mod_version" to mod_version,
+        "mod_version" to project.version,
     )
     inputs.properties(replaceProperties)
     expand(replaceProperties)

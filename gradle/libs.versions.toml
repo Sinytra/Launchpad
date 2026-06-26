@@ -3,6 +3,7 @@ moddev = { id = "net.neoforged.moddev", version = "2.0.141" }
 shadow = { id = "com.gradleup.shadow", version = "9.4.2" }
 gradleutils = { id = "net.neoforged.gradleutils", version = "5.1.1" }
 publishing = { id = "me.modmuss50.mod-publish-plugin", version = "2.1.1" }
+licenser = { id = "net.neoforged.licenser", version = "0.7.5" }
 
 [libraries]
 forgified-fabric-loader = { group = "org.sinytra", name = "forgified-fabric-loader", version = "2.5.77+0.18.4+26.1" }
