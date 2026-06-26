@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}-testmod",
+  "version": "${mod_version}",
+  "name": "${mod_name} Testmod",
+  "description": "Test mod for ${mod_name}",
+  "license": "${mod_license_spdx}",
+  "environment": "*",
+  "accessWidener": "launchpad-testmod.classtweaker",
+  "entrypoints": {
+    "main": [
+      "org.sinytra.launchpad.testmod.CommonMain"
+    ],
+    "preLaunch": [
+      "org.sinytra.launchpad.testmod.PrelaunchMain"
+    ]
+  },
+  "authors": [
+    "Sinytra"
+  ],
+  "custom": {
+    "launchpad:compatible": true,
+    "launchpad:overrides": {
+      "id": "${mod_id}_testmod"
+    }
+  }
+}

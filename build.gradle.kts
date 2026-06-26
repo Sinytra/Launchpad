@@ -18,6 +18,7 @@ val mod_group_id: String by project
 val mod_id: String by project
 val mod_name: String by project
 val mod_license: String by project
+val mod_license_spdx: String by project
 val neo_version: String by project
 val minecraft_version: String by project
 
@@ -54,11 +55,27 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 val shade = configurations.create("shade")
 val gameLibrary = sourceSets.create("gameLibrary")
+val testmod = sourceSets.create("testmod")
 
 neoForge {
     version = neo_version
 
     addModdingDependenciesTo(gameLibrary)
+    addModdingDependenciesTo(testmod)
+    mods {
+        create(mod_id) {
+            sourceSet(sourceSets.main.get())
+        }
+        create("${mod_id}_game") {
+            sourceSet(gameLibrary)
+        }
+        create("${mod_id}_test") {
+            sourceSet(sourceSets.test.get())
+        }
+        create("${mod_id}_testmod") {
+            sourceSet(testmod)
+        }
+    }
 
     runs {
         create("client") {
@@ -74,16 +91,14 @@ neoForge {
             systemProperty("mixin.debug.export", "true")
 
             logLevel = Level.DEBUG
+            loadedMods = loadedMods.get().filter { !it.name.contains("test") }
         }
     }
 
-    mods {
-        create(mod_id) {
-            sourceSet(sourceSets.main.get())
-        }
-        create("$mod_id-game") {
-            sourceSet(gameLibrary)
-        }
+
+    unitTest {
+        enable()
+        testedMod = mods.named(mod_id)
     }
 }
 
@@ -106,6 +121,7 @@ repositories {
         name = "FabricMC"
         url = uri("https://maven.fabricmc.net")
     }
+    mavenLocal()
 }
 
 dependencies {
@@ -117,24 +133,33 @@ dependencies {
 
     "gameLibraryImplementation"(libs.forgified.fabric.loader)
     "gameLibraryImplementation"(sourceSets.main.get().output)
+
+    "testmodImplementation"(libs.forgified.fabric.loader)
+
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.platform.launcher)
+    testImplementation(libs.testframework)
+    testImplementation(testmod.output)
 }
 
-val generateModMetadata = tasks.register<ProcessResources>("generateModMetadata") {
-    val replaceProperties = mapOf(
-        "mod_id" to mod_id,
-        "mod_name" to mod_name,
-        "mod_license" to mod_license,
-        "mod_version" to project.version,
-    )
-    inputs.properties(replaceProperties)
-    expand(replaceProperties)
-    from("src/main/templates")
-    into("build/generated/sources/modMetadata")
+listOf(sourceSets.main.get(), testmod).forEach { sourceSet ->
+    val taskName = sourceSet.getTaskName("generate", "ModMetadata")
+    val generateModMetadata = tasks.register<ProcessResources>(taskName) {
+        val replaceProperties = mapOf(
+            "mod_id" to mod_id,
+            "mod_name" to mod_name,
+            "mod_license" to mod_license,
+            "mod_license_spdx" to mod_license_spdx,
+            "mod_version" to project.version,
+        )
+        inputs.properties(replaceProperties)
+        expand(replaceProperties)
+        from("src/${sourceSet.name}/templates")
+        into("build/generated/sources/${sourceSet.name}/modMetadata")
+    }
+    sourceSet.resources.srcDir(generateModMetadata)
+    neoForge.ideSyncTask(generateModMetadata)
 }
-sourceSets.main {
-    resources.srcDir(generateModMetadata)
-}
-neoForge.ideSyncTask(generateModMetadata)
 
 val depsJar = tasks.register("depsJar", ShadowJar::class) {
     configurations = listOf(shade)
@@ -205,6 +230,10 @@ tasks {
     assemble {
         dependsOn(fullJar)
     }
+
+    test {
+        useJUnitPlatform()
+    }
 }
 
 configurations.runtimeElements {
@@ -245,7 +274,7 @@ publishMods {
     modLoaders = listOf("neoforge")
     dryRun = !providers.environmentVariable("CI").isPresent
     displayName = "[$minecraft_version] Launchpad ${project.version}"
-    
+
     val compatibleVersions = compatible_versions.split(",")
 
     github {

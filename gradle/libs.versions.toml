@@ -8,3 +8,7 @@ licenser = { id = "net.neoforged.licenser", version = "0.7.5" }
 [libraries]
 forgified-fabric-loader = { group = "org.sinytra", name = "forgified-fabric-loader", version = "2.5.77+0.18.4+26.1" }
 clazz-tweaker = { group = "net.fabricmc", name = "class-tweaker", version = "0.3.0-beta.2" }
+
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version = "5.7.1" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+testframework = { group = "net.neoforged", name = "testframework", version = "26.1.2.76" }

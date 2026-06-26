@@ -30,6 +30,9 @@ public class EntrypointRunner {
         LOGGER.debug("Adding registry callbacks");
         NeoForgeRegistriesSetupAccessor.invokeModifyRegistries(null);
 
+        LOGGER.debug("Unfreezing data");
+        net.neoforged.neoforge.registries.GameData.unfreezeData();
+
         ProgressMeter progress = StartupNotificationManager.prependProgressBar("[Launchpad] Loading mods", 0);
 
         LOGGER.debug("Invoking Fabric entrypoints");

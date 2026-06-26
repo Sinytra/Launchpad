@@ -2,6 +2,7 @@
   "required": true,
   "package": "org.sinytra.launchpad.game.mixin",
   "compatibilityLevel": "JAVA_25",
+  "plugin": "org.sinytra.launchpad.game.LaunchpadMixinPlugin",
   "mixins": [
     "launch.DatagenModLoaderMixin",
     "registry.NeoForgeRegistriesSetupAccessor",
@@ -11,7 +12,8 @@
     "launch.MinecraftMixin"
   ],
   "server": [
-    "launch.ServerMainMixin"
+    "launch.ServerMainMixin",
+    "launch.JUnitMainMixin"
   ],
   "injectors": {
     "defaultRequire": 1
