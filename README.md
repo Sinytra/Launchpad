@@ -72,8 +72,7 @@ repositories {
 }
 
 dependencies {
-    // Launchpad is a service, therefore we must add it to the launch classpath
-    additionalRuntimeClasspath "org.sinytra.launchpad:launchpad:<version>"
+    implementation "org.sinytra.launchpad:launchpad:<version>"
 }
 ```
 
