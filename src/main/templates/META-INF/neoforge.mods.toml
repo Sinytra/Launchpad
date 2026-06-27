@@ -12,7 +12,7 @@ displayName="${mod_name}"
 
 displayURL="https://github.com/Sinytra/Launchpad"
 
-#logoFile="examplemod.png" #optional
+logoFile="logo.png"
 
 authors="Su5eD"
 
