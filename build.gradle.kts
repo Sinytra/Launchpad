@@ -21,6 +21,7 @@ val mod_license: String by project
 val mod_license_spdx: String by project
 val neo_version: String by project
 val minecraft_version: String by project
+val launchpad_version: String by project
 
 val compatible_versions: String by project
 val curseforge_id: String by project
@@ -30,26 +31,17 @@ val publish_branch: String by project
 
 val PUBLISH_RELEASE_TYPE = providers.environmentVariable("PUBLISH_RELEASE_TYPE")
 
-version = "0.0.0-SNAPSHOT"
 group = mod_group_id
-
-base {
-    archivesName = mod_id
-}
-
-gradleutils.version {
-    branches {
-        suffixBranch()
-        suffixExemptedBranch(minecraft_version)
-        suffixExemptedBranch("26.1.x")
-    }
-}
-version = "${gradleutils.version.toString().removePrefix("v")}+$minecraft_version"
+version = "$launchpad_version+$minecraft_version"
 // Append git commit hash for dev versions
 if (!PUBLISH_RELEASE_TYPE.isPresent) {
     version = "$version+dev-${gradleutils.gitInfo["hash"]}"
 }
 println("Version: $version")
+
+base {
+    archivesName = mod_id
+}
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
