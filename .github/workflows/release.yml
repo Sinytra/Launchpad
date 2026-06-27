@@ -54,10 +54,11 @@ jobs:
   
   publish:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: Maven
-            task: publish :transformer:publish
+            task: publish
             url: https://maven.su5ed.dev/releases/org/sinytra/launchpad
           - name: GitHub
             task: publishGithub
