@@ -29,7 +29,7 @@ public final class ClassTweakerConverter {
             @Override
             public @Nullable AccessWidenerVisitor visitAccessWidener(String owner) {
                 String normalOwner = owner.replace('/', '.');
-                
+
                 return new AccessWidenerVisitor() {
                     @Override
                     public void visitClass(AccessType access, boolean transitive) {

@@ -1,25 +1,178 @@
+# Launchpad
 
-Installation information
-=======
+[![Build](https://github.com/Sinytra/Launchpad/actions/workflows/build.yml/badge.svg)](https://github.com/Sinytra/Launchpad/actions/workflows/build.yml)
+[![Latest Release](https://img.shields.io/github/v/release/Sinytra/Launchpad?style=flat&label=Release&include_prereleases&sort=semver)](https://github.com/Sinytra/Launchpad/releases/latest)
+[![CurseForge](https://cf.way2muchnoise.eu/short_1584761.svg)](https://www.curseforge.com/minecraft/mc-mods/launchpad)
+[![Modrinth](https://img.shields.io/modrinth/dt/voWgQoWV?logo=modrinth&label=Modrinth&color=00AF5C)](https://modrinth.com/project/launchpad)
+[![Discord](https://discordapp.com/api/guilds/1141048834177388746/widget.png?style=shield)](https://discord.sinytra.org)
+[![Nightly](https://nightly.link/Sinytra/Launchpad/workflows/build/dev/Nightly%20mod%20jar.zip)](https://img.shields.io/badge/Nightly-Download-9a32f0?logo=github)
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+A small tool for developing NeoForge mods using Fabric conventions.
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+- [About](#about)
+  - [When to use Launchpad](#when-to-use-launchpad) 
+  - [When not to use Launchpad](#when-not-to-use-launchpad)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Property overrides](#property-overrides)
+- [Environment](#environment)
+  - [Metadata](#metadata) 
+  - [Entrypoints](#entrypoints)
+  - [Registration](#registration)
+  - [Fabric loader](#fabric-loader)
+  - [Caveats](#caveats)
+- [API](#api)
+- [License](#license)
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+## About
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+Launchpad's main features include the following:
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+- Reading mod metadata from `fabric.mod.json` files
+- Running standard mod entrypoints (`preLaunch`, `client`, `main`, `server`)
+- Access transformation using Class Tweakers (or Access Wideners)
+- Loading nested jar dependencies
+
+Furthermore, we provide certain extensions on top of the Fabric standard described in [Usage](#usage).  
+
+### When to use Launchpad
+
+Generally speaking, Launchpad works best for small to medium-sized Fabric mods that are already potentially compatible
+with NeoForge, just need that small final push to get them loaded.
+
+Use Launchpad, when:
+
+- You want to port your mod to NeoForge but don't have the time for a full, native port
+- Your mod requires little to no changes to be compatible with NeoForge (mainly speaking of Mixins)
+- You're fine with having extra dependencies on NeoForge, namely the
+[Forgified Fabric API](https://github.com/Sinytra/ForgifiedFabricAPI) and Launchpad
+
+### When not to use Launchpad
+
+Consider making a native port or using the [MultiLoader template](https://github.com/jaredlll08/MultiLoader-Template),
+when:
+
+- You want to use NeoForge APIs extensively
+- You want full control over your metadata or entrypoints
+- You don't want extra dependencies
+
+## Installation
+
+Install Launchpad in your development environment by including it in your dependencies. You can find available versions
+on our [maven](https://maven.su5ed.dev/#/releases/org/sinytra/launchpad/launchpad) or on GitHub
+[releases](https://github.com/Sinytra/Launchpad/releases).
+
+Use the following code to add Launchpad to a ModDevGradle workspace:
+
+```groovy
+repositories {
+    maven {
+        name = "Sinytra"
+        url = "https://maven.sinytra.org/"
+    }
+}
+
+dependencies {
+    // Launchpad is a service, therefore we must add it to the launch classpath
+    additionalRuntimeClasspath "org.sinytra.launchpad:launchpad:<version>"
+}
+```
+
+## Usage
+
+Running mods on Launchpad requires explicit opt-in from the mod author. Launchpad automatically scans Fabric mods
+located by FML and uses a custom metatada property to decide whether they should be loaded.
+
+To enable loading your mod on Launchpad, add the following to your `fabric.mod.json` file.
+
+```json
+{
+  "custom": {
+    "launchpad:compatible": true
+  }
+}
+```
+
+From here on, Launchpad will handle everything else for you.
+
+### Property overrides
+
+Property overrides can be used to provide different values for a property depending on the mod loader used. Launchpad
+will overwrite the actual value with its override counterpart when it reads the metadata file.
+
+Example use cases include changing dependencies or the mod ID.
+
+You can define overrides using the `launchpad:overrides` custom property. Its body follows the same format as the
+outer Fabric Mod Json.
+
+```json5
+{
+  // NeoForge doesn't allow '-' in mod IDs
+  "id": "example-mod",
+  "custom": {
+    "launchpad:overrides": {
+      // Swap the mod ID for a valid one on NeoForge
+      "id": "example_mod"
+    }
+  }
+}
+```
+
+## Environment
+
+Launchpad is designed to be a developer porting tool, not a compatibility layer. Unlike Connector, it makes no
+modifications to the mod's code and only converts metadata files to NeoForge's format at runtime. No changes are made
+to the mod's jar, either.
+
+This means resolving potential compatibility issues, such as in Mixins, is the left up to mod authors.
+In return, we can provide a very minimal and stable tool for running their mods on NeoForge without making any invasive
+and unpredictable changes to them that the author can't control.
+
+Launchpad will, however, do its best to provide runtime conditions replicating those of Fabric as closely as possible.
+This mainly concerns game object registration logic, which differs significantly on NeoForge. More on that below.
+
+### Metadata
+
+Fabric metadata is translated to NeoForge as accurately as possible, but due to the differences in the two formats,
+the result may be missing information from properties that don't have a NeoForge counterpart.
+
+Dependencies will be translated as well, with dependency resolution being handled by FML natively.
+
+### Entrypoints
+
+The `main`, `client` and `server` entrypoint will run at the same time as on Fabric.
+
+The `preLaunch` entrypoint is a special case because it runs before the game's entrypoint is called. On Launchpad, we
+invoke it from inside a Mixin config plugin's static initialization block. We guarantee that the most common use cases
+for this entrypoint, such as loading native libraries or additional Mixin config files, work correctly.
+
+### Registration
+
+Usually, registering game objects on NeoForge must be done inside the `RegisterEvent`, during which the registries are
+unfrozen. However, Fabric mods run out their registration logic in their initializers. At the time of their invocation,
+the registries are frozen and NeoForge's builtin registry callbacks haven't been added yet.
+
+Launchpad resolves these issues and ensures the registries are ready to receive registration calls when a mod's
+entrypoints run.
+
+### Fabric loader
+
+Launchpad makes Fabric Loader API available using our NeoForge port of the Fabric Loader,
+[Forgified Fabric Loader](https://github.com/Sinytra/ForgifiedFabricLoader). This is also used to manage the metadata
+and entrypoints of mods loaded via Launchpad, but also to provide Fabric-facing information of native FML mods.
+As a result, Fabric mods can access the metadata of both "Fabric" and FML mods through just the Fabric Loader.
+
+### Caveats
+
+Despite our best efforts, certain environmental settings may still differ. If you run into any issues, please file a
+bug report!
+
+## API
+
+To integrate with Launchpad programatically, you can use the API provided in the `org.sinytra.launchpad.api` package.
+
+## License
+
+Launchpad is licensed under the GNU General Public License v3 with the Classpath Exception v2.0. See LICENSE for the
+full license text.
+

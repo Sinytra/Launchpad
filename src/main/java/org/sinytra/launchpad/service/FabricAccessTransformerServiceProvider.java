@@ -53,12 +53,12 @@ public class FabricAccessTransformerServiceProvider implements ClassProcessorPro
                     LOGGER.error(LogMarkers.LOADING, "Class Tweaker file {} provided by {} does not exist!", ctPath, modFile);
                     continue;
                 }
-                
+
                 String fileName = Arrays.asList(ctPath.split("/")).getLast();
                 String converted = ClassTweakerConverter.createAccessTransformer(new BufferedReader(new InputStreamReader(in)), fileName);
 
                 try (InputStream atIn = new ByteArrayInputStream(converted.getBytes(StandardCharsets.UTF_8))) {
-                    engine.loadAT(new InputStreamReader(atIn), ctPath);   
+                    engine.loadAT(new InputStreamReader(atIn), ctPath);
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Failed to load AT at " + ctPath + " from " + modFile, e);

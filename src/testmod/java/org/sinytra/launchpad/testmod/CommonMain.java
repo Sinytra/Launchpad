@@ -18,10 +18,10 @@ import org.slf4j.Logger;
 
 public class CommonMain implements ModInitializer {
     public static final String MODID = "launchpad_testmod";
-    
+
     private static final Logger LOGGER = LogUtils.getLogger();
     private static boolean initialized;
-    
+
     public static final ResourceKey<Item> WALRUS_KEY = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "walrus"));
     public static final Item WALRUS = new Item(new Properties().durability(100).setId(WALRUS_KEY));
 
@@ -33,7 +33,7 @@ public class CommonMain implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Called CommonMain#onInitialize!");
         initialized = true;
-        
+
         // Try registering an item
         Registry.register(BuiltInRegistries.ITEM, WALRUS_KEY, WALRUS);
     }
