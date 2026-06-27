@@ -5,7 +5,6 @@
 [![CurseForge](https://cf.way2muchnoise.eu/short_1584761.svg)](https://www.curseforge.com/minecraft/mc-mods/launchpad)
 [![Modrinth](https://img.shields.io/modrinth/dt/voWgQoWV?logo=modrinth&label=Modrinth&color=00AF5C)](https://modrinth.com/project/launchpad)
 [![Discord](https://discordapp.com/api/guilds/1141048834177388746/widget.png?style=shield)](https://discord.sinytra.org)
-[![Nightly](https://nightly.link/Sinytra/Launchpad/workflows/build/dev/Nightly%20mod%20jar.zip)](https://img.shields.io/badge/Nightly-Download-9a32f0?logo=github)
 
 A small tool for developing NeoForge mods using Fabric conventions.
 
