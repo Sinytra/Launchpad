@@ -1,0 +1,18 @@
+license="${mod_license}"
+
+[[mods]]
+
+modId="${mod_id}_testmod"
+
+version="${mod_version}"
+
+displayName="${mod_name} Testmod"
+
+authors="Sinytra"
+
+description='''
+Test mod for ${mod_name}
+'''
+
+[properties]
+"launchpad:placeholder"=true

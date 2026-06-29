@@ -5,6 +5,8 @@
 
 package org.sinytra.launchpad.service;
 
+import com.electronwill.nightconfig.core.UnmodifiableCommentedConfig;
+import com.electronwill.nightconfig.toml.TomlFormat;
 import com.mojang.logging.LogUtils;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.jarcontents.JarContents;
@@ -17,9 +19,12 @@ import net.neoforged.neoforgespi.locating.IModFile.Type;
 import net.neoforged.neoforgespi.locating.IModFileReader;
 import net.neoforged.neoforgespi.locating.ModFileDiscoveryAttributes;
 import org.jetbrains.annotations.Nullable;
+import org.sinytra.launchpad.api.Constants;
 import org.sinytra.launchpad.impl.FabricModMetadata;
 import org.slf4j.Logger;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.jar.Attributes;
 
 public class FabricModJsonFileReader implements IModFileReader {
@@ -34,13 +39,13 @@ public class FabricModJsonFileReader implements IModFileReader {
 
     @Override
     public int getPriority() {
-        // Run after neoforge.mods.toml reader
-        return -500;
+        // Run before neoforge.mods.toml reader
+        return 200;
     }
 
     @Nullable
     public static IModFile createModFile(JarContents contents, ModFileDiscoveryAttributes discoveryAttributes) {
-        if (!contents.containsFile(FMJ)) {
+        if (!contents.containsFile(FMJ) || isNeoForgeMod(contents)) {
             return null;
         }
 
@@ -63,5 +68,22 @@ public class FabricModJsonFileReader implements IModFileReader {
         mjm.setModFile(modFile);
 
         return modFile;
+    }
+
+    private static boolean isNeoForgeMod(JarContents jar) {
+        if (jar.containsFile(JarModsDotTomlModFileReader.MODS_TOML)) {
+            var modsToml = jar.get(JarModsDotTomlModFileReader.MODS_TOML);
+            if (modsToml != null) {
+                UnmodifiableCommentedConfig config;
+                try (var reader = modsToml.bufferedReader()) {
+                    config = TomlFormat.instance().createParser().parse(reader).unmodifiable();
+                } catch (IOException e) {
+                    LOGGER.error("Failed to read {} from {}", modsToml, jar.getPrimaryPath(), e);
+                    return true;
+                }
+                return !config.contains(List.of("properties", Constants.PLACEHOLDER));
+            }
+        }
+        return false;
     }
 }

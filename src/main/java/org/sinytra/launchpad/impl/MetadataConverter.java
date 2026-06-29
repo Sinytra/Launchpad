@@ -141,13 +141,21 @@ public final class MetadataConverter {
 
         Config config = Config.inMemory();
 
-        config.add("modId", dependency.getModId());
+        config.add("modId", convertDepModId(dependency.getModId()));
         config.add("type", convertDepType(dependency.getKind()).name().toLowerCase(Locale.ROOT));
         config.add("versionRange", VersionConverter.convert(dependency.getVersionRequirements()));
         config.add("ordering", Ordering.NONE.name());
         config.add("side", DependencySide.BOTH.name());
 
         return config;
+    }
+
+    private static String convertDepModId(String modId) {
+        // Hardcoded conversion for Forgified Fabric API modules
+        if (modId.matches("^fabric-.+v\\d$")) {
+            return modId.replace('-', '_');
+        }
+        return modId;
     }
 
     private static DependencyType convertDepType(Kind kind) {

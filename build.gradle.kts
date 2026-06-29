@@ -43,7 +43,10 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
 
 val shade = configurations.create("shade")
 val gameLibrary = sourceSets.create("gameLibrary")
@@ -120,7 +123,7 @@ dependencies {
     shade(libs.forgified.fabric.loader)
     shade(libs.clazz.tweaker) { isTransitive = false }
 
-    implementation(libs.forgified.fabric.loader)
+    api(libs.forgified.fabric.loader)
     implementation(libs.clazz.tweaker)
 
     "gameLibraryImplementation"(libs.forgified.fabric.loader)
@@ -160,6 +163,7 @@ val depsJar = tasks.register("depsJar", ShadowJar::class) {
 
 val gameLibraryJar = tasks.register("gameLibraryJar", Jar::class) {
     from(gameLibrary.output)
+    from("LICENSE")
 
     manifest.attributes("Implementation-Version" to project.version)
     manifest.from("src/gameLibrary/resources/META-INF/MANIFEST.MF")
@@ -211,6 +215,10 @@ val fullJar = tasks.register("fullJar", ShadowJar::class) {
 }
 
 tasks {
+    jar {
+        from("LICENSE")
+    }
+
     withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
     }

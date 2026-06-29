@@ -14,6 +14,7 @@ A small tool for developing NeoForge mods using Fabric conventions.
 - [Installation](#installation)
 - [Usage](#usage)
   - [Property overrides](#property-overrides)
+  - [NeoForge Placeholder](#neoforge-placeholder)
 - [Environment](#environment)
   - [Metadata](#metadata) 
   - [Entrypoints](#entrypoints)
@@ -28,7 +29,7 @@ A small tool for developing NeoForge mods using Fabric conventions.
 Launchpad's main features include the following:
 
 - Reading mod metadata from `fabric.mod.json` files
-- Running standard mod entrypoints (`preLaunch`, `client`, `main`, `server`)
+- Running mod entrypoints (both standard and custom)
 - Access transformation using Class Tweakers (or Access Wideners)
 - Loading nested jar dependencies
 
@@ -116,6 +117,35 @@ outer Fabric Mod Json.
 }
 ```
 
+### NeoForge Placeholder
+
+If a user installs a Launchpad-compatible Fabric mod, but forgets to install Launchpad itself, FML has no way to tell
+them about the missing dependency, and will instead show an error screen saying the mod is invalid.
+
+To overcome this issue, Launchpad offers a placeholder/stub feature that allows developers to safely depend on Launchpad
+and notify users about missing dependencies when Launchpad is not installed. To enable this, include a standard
+`neoforge.mods.toml` metadata file in your mod jar. In addition to the mod declaration, add the following code:
+
+```toml
+[properties]
+"launchpad:placeholder"=true
+```
+
+At discovery time, Launchpad will recognize this as a placeholder, ignore the NeoForge metadata file and load your mod
+using `fabric.mod.json` instead.
+
+In addition to the property above, don't forget to actually declare a dependency on Launchpad. For convenience, you can
+use this snippet: 
+```toml
+# Replace with your actual mod id
+[[dependencies.your_mod_id]]
+modId="launchpad"
+type="required"
+versionRange="[0,)"
+ordering="NONE"
+side="BOTH"
+```
+
 ## Environment
 
 Launchpad is designed to be a developer porting tool, not a compatibility layer. Unlike Connector, it makes no
@@ -135,6 +165,10 @@ Fabric metadata is translated to NeoForge as accurately as possible, but due to 
 the result may be missing information from properties that don't have a NeoForge counterpart.
 
 Dependencies will be translated as well, with dependency resolution being handled by FML natively.
+
+As a special integration with the Forgified Fabric API, mod IDs of Fabric API modules in dependencies will be
+automatically replaced with FFAPI counterparts (`fabric-api` -> `fabric_api`). This is done to avoid having to declare
+redundant overrides in mod metadata.
 
 ### Entrypoints
 

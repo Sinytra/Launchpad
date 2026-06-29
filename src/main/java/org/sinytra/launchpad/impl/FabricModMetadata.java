@@ -13,7 +13,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.jarcontents.JarContents;
 import net.neoforged.fml.jarcontents.JarResource;
 import net.neoforged.fml.loading.LogMarkers;
-import net.neoforged.fml.loading.moddiscovery.readers.JarModsDotTomlModFileReader;
 import net.neoforged.fml.util.PathPrettyPrinting;
 import net.neoforged.neoforgespi.locating.ModFileInfoParser;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +47,7 @@ public class FabricModMetadata {
 
         JarResource modsJson = contents.get(FabricModJsonFileReader.FMJ);
         if (modsJson == null) {
-            LOGGER.warn(LogMarkers.LOADING, "Mod file {} is missing {} file", path, JarModsDotTomlModFileReader.MODS_TOML);
+            LOGGER.warn(LogMarkers.LOADING, "Mod file {} is missing {} file", path, FabricModJsonFileReader.FMJ);
             return null;
         }
 
