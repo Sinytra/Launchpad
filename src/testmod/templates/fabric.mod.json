@@ -18,6 +18,7 @@
   "authors": [
     "Sinytra"
   ],
+  "provides": ["examplemod"],
   "custom": {
     "launchpad:compatible": true,
     "launchpad:overrides": {

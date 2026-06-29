@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.jar.Attributes;
 
@@ -94,6 +95,16 @@ public class FabricModMetadata {
 
             JsonObject overrides = custom != null ? custom.getAsJsonObject(OVERRIDES) : null;
             if (overrides != null) {
+                // Add original mod ID to provides 
+                if (overrides.has("id")) {
+                    JsonArray provides = Objects.requireNonNullElseGet(root.getAsJsonArray("provides"), JsonArray::new);
+
+                    JsonPrimitive modId = Objects.requireNonNull(root.getAsJsonPrimitive("id"), "Missing mod ID");
+                    provides.add(modId.getAsString());
+
+                    root.add("provides", provides);
+                }
+
                 for (Entry<String, JsonElement> entry : overrides.entrySet()) {
                     root.add(entry.getKey(), entry.getValue());
                 }

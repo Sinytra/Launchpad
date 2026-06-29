@@ -5,6 +5,8 @@
 
 package org.sinytra.launchpad.test;
 
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
@@ -24,6 +26,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(EphemeralTestServerProvider.class)
 public class LaunchpadTest {
+    private static final String MODID = "launchpad_testmod";
+    private static final String OG_MODID = "launchpad-testmod";
+    private static final String PROVIDED_MODID = "examplemod";
+    
     @Test
     void testPreLaunchEntrypoint(MinecraftServer server) {
         assertTrue(PrelaunchMain.isInitialized(), "Expected preLaunch entrypoint to have been called");
@@ -58,5 +64,15 @@ public class LaunchpadTest {
     void testRegisteredItem(MinecraftServer server) {
         Item item = BuiltInRegistries.ITEM.getValue(CommonMain.WALRUS_KEY);
         assertNotNull(item, "Expected item to be registered");
+    }
+
+    @Test
+    void testModAlias(MinecraftServer server) {
+        ModContainer mod = FabricLoader.getInstance().getModContainer(MODID).orElseThrow();
+        ModContainer original = FabricLoader.getInstance().getModContainer(OG_MODID).orElseThrow();
+        ModContainer provided = FabricLoader.getInstance().getModContainer(PROVIDED_MODID).orElseThrow();
+
+        assertEquals(mod, original, "Expected mod containers to be the same");
+        assertEquals(mod, provided, "Expected mod containers to be the same");
     }
 }

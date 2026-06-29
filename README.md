@@ -117,6 +117,9 @@ outer Fabric Mod Json.
 }
 ```
 
+In the special case of overriding the `id` property, we'll automatically add the original value to the `provides` list
+so that other mods can still check for the mod's presence using the original id.
+
 ### NeoForge Placeholder
 
 If a user installs a Launchpad-compatible Fabric mod, but forgets to install Launchpad itself, FML has no way to tell
