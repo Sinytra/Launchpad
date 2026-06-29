@@ -28,7 +28,13 @@ import org.slf4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -42,7 +48,7 @@ public final class MetadataConverter {
     private static final Pattern VALID_VERSION = Pattern.compile("^\\d+.*");
     private static final String DEFAULT_LICENSE = "All Rights Reserved";
     // Targeting these is currently not supported on Neo
-    private static final Set<String> SKIP_DEPS = Set.of("fabricloader", "java");
+    private static final Set<String> SKIP_DEPS = Set.of("fabricloader");
 
     public static IModFileInfo createNeoMetadata(LoaderModMetadata metadata, IModFile modFile, Dist dist) {
         String modid = metadata.getId();
@@ -104,8 +110,15 @@ public final class MetadataConverter {
 
         if (!metadata.getDependencies().isEmpty()) {
             List<Config> depConfigs = new ArrayList<>();
+            Config features = Config.inMemory();
 
             for (ModDependency dependency : metadata.getDependencies()) {
+                // Convert the java dependency to a javaVersion feature requirement (see https://docs.neoforged.net/docs/gettingstarted/modfiles/#features)
+                if (dependency.getModId().equals("java")) {
+                    features.add("javaVersion", VersionConverter.convert(dependency.getVersionRequirements()));
+                    continue;
+                }
+
                 Config depConfig = convertDependency(dependency);
                 if (depConfig != null) {
                     depConfigs.add(depConfig);
@@ -114,6 +127,9 @@ public final class MetadataConverter {
 
             if (!depConfigs.isEmpty()) {
                 config.add(List.of("dependencies", modid), depConfigs);
+            }
+            if (!features.isEmpty()) {
+                config.add(List.of("features", modid), features);
             }
         }
 
