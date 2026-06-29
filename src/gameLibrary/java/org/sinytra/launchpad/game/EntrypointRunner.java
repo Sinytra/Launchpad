@@ -10,13 +10,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.MappedRegistry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.progress.ProgressMeter;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
-import org.sinytra.launchpad.game.mixin.registry.NeoForgeRegistriesSetupAccessor;
+import net.neoforged.neoforge.registries.GameData;
 import org.sinytra.launchpad.impl.LaunchpadImpl;
 import org.slf4j.Logger;
 
@@ -29,11 +27,8 @@ public class EntrypointRunner {
             return;
         }
 
-        LOGGER.debug("Adding registry callbacks");
-        NeoForgeRegistriesSetupAccessor.invokeModifyRegistries(null);
-
         LOGGER.debug("Unfreezing data");
-        net.neoforged.neoforge.registries.GameData.unfreezeData();
+        GameData.unfreezeData();
 
         ProgressMeter progress = StartupNotificationManager.prependProgressBar("[Launchpad] Loading mods", 0);
 
@@ -55,11 +50,7 @@ public class EntrypointRunner {
             }
         });
 
-        BuiltInRegistries.REGISTRY.stream().filter(MappedRegistry.class::isInstance).forEach(r -> {
-            // HolderSet.Named may be used for registry objects, vanilla binds these tags so freeze doesn't throw for unbound tags
-            ((MappedRegistry<?>) r).bindAllTagsToEmpty();
-            ((MappedRegistry<?>) r).freeze();
-        });
+        GameData.freezeData();
 
         progress.complete();
     }
