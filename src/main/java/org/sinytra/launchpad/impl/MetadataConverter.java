@@ -168,7 +168,7 @@ public final class MetadataConverter {
 
     private static String convertDepModId(String modId) {
         // Hardcoded conversion for Forgified Fabric API modules
-        if (modId.matches("^fabric-.+v\\d$")) {
+        if (modId.equals("fabric-api") || modId.matches("^fabric-.+v\\d$")) {
             return modId.replace('-', '_');
         }
         return modId;

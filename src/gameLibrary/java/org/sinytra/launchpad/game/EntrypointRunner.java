@@ -10,6 +10,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.progress.ProgressMeter;
@@ -51,6 +53,12 @@ public class EntrypointRunner {
                 LOGGER.error("Failed to invoke mod entrypoint", t);
                 LaunchpadImpl.addLoadingException(t, "Failed to invoke mod entrypoint");
             }
+        });
+
+        BuiltInRegistries.REGISTRY.stream().filter(MappedRegistry.class::isInstance).forEach(r -> {
+            // HolderSet.Named may be used for registry objects, vanilla binds these tags so freeze doesn't throw for unbound tags
+            ((MappedRegistry<?>) r).bindAllTagsToEmpty();
+            ((MappedRegistry<?>) r).freeze();
         });
 
         progress.complete();
