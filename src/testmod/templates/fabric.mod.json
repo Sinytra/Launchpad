@@ -18,6 +18,10 @@
   "authors": [
     "Sinytra"
   ],
+  "depends": {
+    "java": ">=25",
+    "fabricloader": ">=0.18"
+  },
   "provides": ["examplemod"],
   "custom": {
     "launchpad:compatible": true,
