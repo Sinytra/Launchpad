@@ -28,7 +28,7 @@ public class CommonMain implements ModInitializer {
 
     public static final ResourceKey<Item> WALRUS_KEY = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "walrus"));
     public static final Item WALRUS = new Item(new Properties().durability(100).setId(WALRUS_KEY));
-    
+
     public static final ResourceKey<Registry<Fruit>> FRUITS_KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(MODID, "fruits"));
     public static final Registry<Fruit> FRUITS = FabricRegistryBuilder.create(FRUITS_KEY).buildAndRegister();
 
@@ -59,6 +59,7 @@ public class CommonMain implements ModInitializer {
             });
         });
     }
-    
-    public record Fruit() {}
+
+    public record Fruit() {
+    }
 }

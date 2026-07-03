@@ -13,7 +13,7 @@ public final class Constants {
     public static final String ENABLE_LAUNCHPAD = "launchpad:compatible";
     public static final String OVERRIDES = "launchpad:overrides";
     public static final String NORMALIZE = "launchpad:normalize";
-    
+
     // neoforge.mods.toml properties
     public static final String PLACEHOLDER = "launchpad:placeholder";
 

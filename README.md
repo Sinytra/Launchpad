@@ -96,9 +96,11 @@ From here on, Launchpad will handle everything else for you.
 
 ### Automatic fixes
 
-By default, Launchpad will make minimal changes to your metadata necessary for the mod to run. Currently, these include:
+By default, Launchpad will make minimal changes to your metadata in order to comply with NeoForge's requirements.
+Currently, the following patches are applied:
 
-- Replace `-` for `_` in the mod ID and dependency IDs. Add the original mod ID to `provides`.
+1. Replacing `-` with `_` in the mod ID and dependency IDs to match the required format.
+  The original mod ID is added as an alias so that runtime checks are not affected.
 
 You can disable this behavior and regain full control of your metadata by setting the following property:
 ```json

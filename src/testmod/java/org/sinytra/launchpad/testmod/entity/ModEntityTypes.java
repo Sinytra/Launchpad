@@ -17,22 +17,22 @@ import net.minecraft.world.entity.MobCategory;
 import org.sinytra.launchpad.testmod.CommonMain;
 
 public class ModEntityTypes {
-	public static final EntityType<MiniGolemEntity> MINI_GOLEM = register(
-			"mini_golem",
-			EntityType.Builder.<MiniGolemEntity>of(MiniGolemEntity::new, MobCategory.MISC)
-                .sized(0.75f, 1.75f)
-	);
+    public static final EntityType<MiniGolemEntity> MINI_GOLEM = register(
+        "mini_golem",
+        EntityType.Builder.<MiniGolemEntity>of(MiniGolemEntity::new, MobCategory.MISC)
+            .sized(0.75f, 1.75f)
+    );
 
-	private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
-		ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(CommonMain.MODID, name));
-		return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, builder.build(key));
-	}
+    private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
+        ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(CommonMain.MODID, name));
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, builder.build(key));
+    }
 
-	public static void registerModEntityTypes() {
+    public static void registerModEntityTypes() {
         CommonMain.LOGGER.info("Registering EntityTypes for " + CommonMain.MODID);
-	}
+    }
 
-	public static void registerAttributes() {
-		FabricDefaultAttributeRegistry.register(MINI_GOLEM, MiniGolemEntity.createAttributes());
-	}
+    public static void registerAttributes() {
+        FabricDefaultAttributeRegistry.register(MINI_GOLEM, MiniGolemEntity.createAttributes());
+    }
 }

@@ -11,7 +11,7 @@ public final class Launchpad {
 
     /**
      * Check whether a mod's entrypoint is currently being invoked.
-     * 
+     *
      * @return <code>true</code> when called from within a mod's entrypoint, otherwise <code>false</code>
      */
     public static boolean isLoading() {
