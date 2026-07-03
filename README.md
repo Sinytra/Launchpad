@@ -94,6 +94,21 @@ To enable loading your mod on Launchpad, add the following to your `fabric.mod.j
 
 From here on, Launchpad will handle everything else for you.
 
+### Automatic fixes
+
+By default, Launchpad will make minimal changes to your metadata necessary for the mod to run. Currently, these include:
+
+- Replace `-` for `_` in the mod ID and dependency IDs. Add the original mod ID to `provides`.
+
+You can disable this behavior and regain full control of your metadata by setting the following property:
+```json
+{
+  "custom": {
+    "launchpad:normalize": false
+  }
+}
+```
+
 ### Property overrides
 
 Property overrides can be used to provide different values for a property depending on the mod loader used. Launchpad
@@ -106,45 +121,10 @@ outer Fabric Mod Json.
 
 ```json5
 {
-  // NeoForge doesn't allow '-' in mod IDs
-  "id": "example-mod",
+  "name": "Example Mod Fabric",
   "custom": {
     "launchpad:overrides": {
-      // Swap the mod ID for a valid one on NeoForge
-      "id": "example_mod"
-    }
-  }
-}
-```
-
-In the special case of overriding the `id` property, we'll automatically add the original value to the `provides` list
-so that other mods can still check for the mod's presence using the original id.
-
-#### Substitution
-
-Inside the overrides object, you can reuse properties from the root by using special variables as override values.
-Variable values will be substituted by Launchpad at runtime when reading the metadata. This mechanism is intentioanlly
-kept very simple and is intended for plain copy-paste substitution without any additional processing.
-
-The syntax for substitution variables is a json path consisting of object keys or array indices joined by dots,
-wrapped in `${}`. They can also be combined and nested infinitely. For example:
-- `${some_root_key}`
-- `${some_obj.some_key}`
-- `${some_array.0.some_array_key.0}`
-
-Example usage in fabric.mod.json:
-```json
-{
-  "depends": {
-    "example-mod": "*"
-  },
-  "authors": [ "John Doe" ],
-  "custom": {
-    "launchpad:overrides": {
-      "depends": {
-        "examplemod": "${depends.example-mod}"
-      },
-      "authors": ["${authors.0}", "Bob"]
+      "name": "Example Mod NeoForge",
     }
   }
 }
@@ -198,10 +178,6 @@ Fabric metadata is translated to NeoForge as accurately as possible, but due to 
 the result may be missing information from properties that don't have a NeoForge counterpart.
 
 Dependencies will be translated as well, with dependency resolution being handled by FML natively.
-
-As a special integration with the Forgified Fabric API, mod IDs of Fabric API modules in dependencies will be
-automatically replaced with FFAPI counterparts (`fabric-api` -> `fabric_api`). This is done to avoid having to declare
-redundant overrides in mod metadata.
 
 ### Entrypoints
 
