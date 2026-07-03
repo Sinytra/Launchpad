@@ -145,8 +145,8 @@ public class FabricModMetadata {
 
         for (Entry<String, JsonElement> entry : Set.copyOf(json.entrySet())) {
             String normalized = normalizeModId(entry.getKey());
-            json.add(normalized, entry.getValue());
             json.remove(entry.getKey());
+            json.add(normalized, entry.getValue());
         }
     }
 
