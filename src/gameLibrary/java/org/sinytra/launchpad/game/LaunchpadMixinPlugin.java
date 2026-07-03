@@ -27,11 +27,6 @@ public class LaunchpadMixinPlugin implements IMixinConfigPlugin {
     }
 
     private static void invokePreLaunchEntrypoints() {
-        if (LaunchpadImpl.hasLoadingError()) {
-            LOGGER.error("Skipping fabric prelaunch entrypoint invocation due to previous error");
-            return;
-        }
-
         LOGGER.debug("Invoking Fabric preLaunch entrypoint");
 
         ProgressMeter progress = StartupNotificationManager.prependProgressBar("[Launchpad] PreLaunch", 0);
@@ -41,7 +36,7 @@ public class LaunchpadMixinPlugin implements IMixinConfigPlugin {
                 FabricLoader.getInstance().invokeEntrypoints("preLaunch", PreLaunchEntrypoint.class, PreLaunchEntrypoint::onPreLaunch);
             } catch (Throwable t) {
                 LOGGER.error("Failed to invoke prelaunch entrypoint", t);
-                LaunchpadImpl.addLoadingException(t, "Failed to invoke prelaunch entrypoint");
+                LaunchpadImpl.throwLoadingException(t, "Failed to invoke prelaunch entrypoint");
             }
         });
 

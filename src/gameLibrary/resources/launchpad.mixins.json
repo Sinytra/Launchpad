@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "org.sinytra.launchpad.game.LaunchpadMixinPlugin",
   "mixins": [
-    "launch.DatagenModLoaderMixin"
+    "launch.DatagenModLoaderMixin",
+    "registries.RegistryManagerMixin"
   ],
   "client": [
     "launch.MinecraftMixin"

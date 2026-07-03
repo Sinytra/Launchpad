@@ -9,6 +9,9 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.item.Item;
 import net.neoforged.testframework.junit.EphemeralTestServerProvider;
 import org.junit.jupiter.api.Assertions;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sinytra.launchpad.testmod.CommonMain;
 import org.sinytra.launchpad.testmod.PrelaunchMain;
+import org.sinytra.launchpad.testmod.entity.ModEntityTypes;
 
 import java.lang.reflect.AccessFlag;
 import java.lang.reflect.Field;
@@ -29,7 +33,7 @@ public class LaunchpadTest {
     private static final String MODID = "launchpad_testmod";
     private static final String OG_MODID = "launchpad-testmod";
     private static final String PROVIDED_MODID = "examplemod";
-    
+
     @Test
     void testPreLaunchEntrypoint(MinecraftServer server) {
         assertTrue(PrelaunchMain.isInitialized(), "Expected preLaunch entrypoint to have been called");
@@ -74,5 +78,22 @@ public class LaunchpadTest {
 
         assertEquals(mod, original, "Expected mod containers to be the same");
         assertEquals(mod, provided, "Expected mod containers to be the same");
+    }
+
+    @Test
+    void testCustomRegistryExists(MinecraftServer server) {
+        assertNotNull(
+            BuiltInRegistries.REGISTRY.getValue(CommonMain.FRUITS_KEY.identifier()),
+            "Expected custom registry to be registered"
+        );
+    }
+
+    @Test
+    void testModifiedAttributes(MinecraftServer server) {
+        AttributeSupplier supplier = DefaultAttributes.getSupplier(ModEntityTypes.MINI_GOLEM);
+
+        assertNotNull(supplier, "Expected supplier to exist");
+        assertTrue(supplier.hasAttribute(Attributes.TEMPT_RANGE), "Expected entity to contain attribute");
+        assertEquals(2.0, supplier.getBaseValue(Attributes.TEMPT_RANGE), "Expected base value");
     }
 }

@@ -57,6 +57,7 @@ neoForge {
 
     addModdingDependenciesTo(gameLibrary)
     addModdingDependenciesTo(testmod)
+
     mods {
         create(mod_id) {
             sourceSet(sourceSets.main.get())
@@ -130,11 +131,13 @@ dependencies {
     "gameLibraryImplementation"(sourceSets.main.get().output)
 
     "testmodImplementation"(libs.forgified.fabric.loader)
+    "testmodImplementation"(libs.forgified.fabric.api)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.platform.launcher)
     testImplementation(libs.testframework)
     testImplementation(testmod.output)
+    testRuntimeOnly(libs.forgified.fabric.api)
 }
 
 listOf(sourceSets.main.get(), testmod).forEach { sourceSet ->

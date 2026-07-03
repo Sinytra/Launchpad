@@ -22,11 +22,6 @@ public class EntrypointRunner {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void invokeEntrypoints() {
-        if (LaunchpadImpl.hasLoadingError()) {
-            LOGGER.error("Skipping fabric entrypoint invocation due to previous error");
-            return;
-        }
-
         LOGGER.debug("Unfreezing data");
         GameData.unfreezeData();
 
@@ -46,9 +41,11 @@ public class EntrypointRunner {
                 }
             } catch (Throwable t) {
                 LOGGER.error("Failed to invoke mod entrypoint", t);
-                LaunchpadImpl.addLoadingException(t, "Failed to invoke mod entrypoint");
+                LaunchpadImpl.throwLoadingException(t, "Failed to invoke mod entrypoint");
             }
         });
+
+        RegistryHelper.postSetup();
 
         GameData.freezeData();
 
