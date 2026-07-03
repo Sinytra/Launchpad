@@ -34,7 +34,7 @@
         "fabric-api": "\${depends.fabric}"
       },
       "authors": [
-        "\${authors.1.hello}"
+        "\${authors.0}"
       ]
     }
   }
