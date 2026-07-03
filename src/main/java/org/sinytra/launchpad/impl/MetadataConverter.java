@@ -61,7 +61,7 @@ public final class MetadataConverter {
         Config modConfig = config.createSubConfig();
         modConfig.add("modId", modid);
 
-        String version = normalizeVersion(metadata.getVersion().getFriendlyString());
+        String version = metadata.getVersion().getFriendlyString();
         // Validate version string. If it's invalid, we'll let FML assign a default version instead
         if (VALID_VERSION.matcher(version).matches()) {
             modConfig.add("version", version);
@@ -166,10 +166,6 @@ public final class MetadataConverter {
             case CONFLICTS -> DependencyType.DISCOURAGED;
             case BREAKS -> DependencyType.INCOMPATIBLE;
         };
-    }
-
-    private static String normalizeVersion(String version) {
-        return version.replace("+", "_");
     }
 
     private static boolean isValidURL(String str) {
