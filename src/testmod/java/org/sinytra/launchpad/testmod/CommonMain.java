@@ -32,6 +32,9 @@ public class CommonMain implements ModInitializer {
     public static final ResourceKey<Registry<Fruit>> FRUITS_KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(MODID, "fruits"));
     public static final Registry<Fruit> FRUITS = FabricRegistryBuilder.create(FRUITS_KEY).buildAndRegister();
 
+    public static final ResourceKey<Fruit> APPLE_KEY = ResourceKey.create(FRUITS_KEY, Identifier.fromNamespaceAndPath(MODID, "apple"));
+    public static final Fruit APPLE = new Fruit();
+
     public static boolean isInitialized() {
         return initialized;
     }
@@ -43,6 +46,7 @@ public class CommonMain implements ModInitializer {
 
         // Try registering an item
         Registry.register(BuiltInRegistries.ITEM, WALRUS_KEY, WALRUS);
+        Registry.register(FRUITS, APPLE_KEY, APPLE);
 
         // Register custom entity to test entity attributes initialization
         ModEntityTypes.registerModEntityTypes();

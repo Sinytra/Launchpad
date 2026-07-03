@@ -94,6 +94,10 @@ public class FabricModMetadata {
             if (!load) {
                 return null;
             }
+            
+            if (custom != null) {
+                custom.addProperty(LaunchpadImpl.LAUNCHPAD_ACTIVE, true);
+            }
 
             JsonObject overrides = custom != null ? custom.getAsJsonObject(OVERRIDES) : null;
             if (overrides != null) {

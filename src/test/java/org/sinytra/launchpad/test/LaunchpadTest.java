@@ -5,19 +5,25 @@
 
 package org.sinytra.launchpad.test;
 
+import io.netty.buffer.Unpooled;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.testframework.junit.EphemeralTestServerProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sinytra.launchpad.testmod.CommonMain;
+import org.sinytra.launchpad.testmod.CommonMain.Fruit;
 import org.sinytra.launchpad.testmod.PrelaunchMain;
 import org.sinytra.launchpad.testmod.entity.ModEntityTypes;
 
@@ -95,5 +101,13 @@ public class LaunchpadTest {
         assertNotNull(supplier, "Expected supplier to exist");
         assertTrue(supplier.hasAttribute(Attributes.TEMPT_RANGE), "Expected entity to contain attribute");
         assertEquals(2.0, supplier.getBaseValue(Attributes.TEMPT_RANGE), "Expected base value");
+    }
+
+    @Test
+    void testByteBufCodecNonSyncedRegistry(MinecraftServer server) {
+        StreamCodec<RegistryFriendlyByteBuf, Fruit> codec = ByteBufCodecs.registry(CommonMain.FRUITS_KEY);
+
+        RegistryFriendlyByteBuf output = new RegistryFriendlyByteBuf(Unpooled.buffer(), server.registryAccess(), ConnectionType.OTHER);
+        assertDoesNotThrow(() -> codec.encode(output, CommonMain.APPLE));
     }
 }
