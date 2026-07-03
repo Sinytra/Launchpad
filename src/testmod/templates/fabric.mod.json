@@ -20,13 +20,22 @@
   ],
   "depends": {
     "java": ">=25",
-    "fabricloader": ">=0.18"
+    "fabricloader": ">=0.18",
+    "fabric": "*"
   },
   "provides": ["examplemod"],
   "custom": {
     "launchpad:compatible": true,
     "launchpad:overrides": {
-      "id": "${mod_id}_testmod"
+      "id": "${mod_id}_testmod",
+      "depends": {
+        "java": "\${depends.java}",
+        "fabricloader": "\${depends.fabricloader}",
+        "fabric-api": "\${depends.fabric}"
+      },
+      "authors": [
+        "\${authors.1.hello}"
+      ]
     }
   }
 }

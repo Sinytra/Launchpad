@@ -22,11 +22,11 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.jar.Attributes;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.sinytra.launchpad.api.Constants.ENABLE_LAUNCHPAD;
 import static org.sinytra.launchpad.api.Constants.OVERRIDES;
@@ -35,6 +35,7 @@ public class FabricModMetadata {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final String LOOM_GENERATED_PROPERTY = "fabric-loom:generated";
     private static final String LOOM_REMAP_ATTRIBUTE = "Fabric-Loom-Remap";
+    private static final Pattern SUBSTITUTION = Pattern.compile("^\\$\\{(.+)}$");
 
     private final LoaderModMetadata metadata;
 
@@ -81,6 +82,7 @@ public class FabricModMetadata {
     private static JsonElement preProcess(JarResource resource, Path path) {
         try (Reader reader = resource.bufferedReader()) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+            JsonObject rootCopy = root.deepCopy();
 
             JsonObject custom = root.getAsJsonObject("custom");
 
@@ -106,7 +108,10 @@ public class FabricModMetadata {
                 }
 
                 for (Entry<String, JsonElement> entry : overrides.entrySet()) {
-                    root.add(entry.getKey(), entry.getValue());
+                    String key = entry.getKey();
+                    JsonElement value = entry.getValue();
+                    JsonElement modified = processOverride(key, value, rootCopy);
+                    root.add(key, modified == null ? value : modified);
                 }
             }
 
@@ -127,5 +132,96 @@ public class FabricModMetadata {
 
     public ModFileInfoParser createNeoMetadataFactory(Dist dist) {
         return file -> MetadataConverter.createNeoMetadata(this.metadata, file, dist);
+    }
+
+    private static JsonElement processOverride(String key, JsonElement value, JsonObject root) {
+        if (value.isJsonObject()) {
+            return processObjectOverride(value.getAsJsonObject(), root);
+        } else if (value.isJsonArray()) {
+            return processArrayOverride(value.getAsJsonArray(), root);
+        } else {
+            return processOverrideValue(key, value, root);
+        }
+    }
+
+    private static JsonElement processObjectOverride(JsonObject parent, JsonObject root) {
+        for (Entry<String, JsonElement> entry : Set.copyOf(parent.entrySet())) {
+            JsonElement replaced = processOverride(entry.getKey(), entry.getValue(), root);
+            if (replaced != null) {
+                parent.add(entry.getKey(), replaced);
+            }
+        }
+        return parent;
+    }
+
+    private static JsonElement processArrayOverride(JsonArray parent, JsonObject root) {
+        List<JsonElement> copyOf = List.copyOf(parent.asList());
+        for (int i = 0; i < copyOf.size(); i++) {
+            JsonElement element = copyOf.get(i);
+            JsonElement replaced = processOverride(String.valueOf(i), element, root);
+            if (replaced != null) {
+                parent.set(i, replaced);
+            }
+        }
+        return parent;
+    }
+
+    @Nullable
+    private static JsonElement processOverrideValue(String key, JsonElement value, JsonObject root) {
+        if (!value.isJsonPrimitive()) {
+            return null;
+        }
+
+        JsonPrimitive primitive = value.getAsJsonPrimitive();
+        if (!primitive.isString()) {
+            return null;
+        }
+
+        String rawValue = primitive.getAsString();
+        Matcher matcher = SUBSTITUTION.matcher(rawValue);
+        if (!matcher.matches()) {
+            return null;
+        }
+
+        String[] path = matcher.group(1).split("\\.");
+        if (path.length == 0) {
+            return value;
+        }
+
+        try {
+            return resolvePath(root, path);
+        } catch (Exception e) {
+            throw new RuntimeException("Error substituting variable override for %s".formatted(key), e);
+        }
+    }
+
+    private static JsonElement resolvePath(JsonObject root, String[] path) {
+        if (path.length == 0) {
+            throw new IllegalArgumentException("Path must not be empty");
+        }
+
+        JsonElement result = root.get(path[0]);
+        if (result == null) {
+            throw new NullPointerException("Invalid json path");
+        }
+
+        for (int i = 1; i < path.length; i++) {
+            String key = path[i];
+
+            if (result.isJsonObject()) {
+                result = result.getAsJsonObject().get(key);
+            } else if (result.isJsonArray()) {
+                int index = Integer.parseInt(key);
+                result = result.getAsJsonArray().get(index);
+            } else {
+                throw new IllegalArgumentException("Can only index object and array json elements");
+            }
+
+            if (result == null) {
+                throw new NullPointerException("Invalid json path");
+            }
+        }
+
+        return result;
     }
 }

@@ -120,6 +120,36 @@ outer Fabric Mod Json.
 In the special case of overriding the `id` property, we'll automatically add the original value to the `provides` list
 so that other mods can still check for the mod's presence using the original id.
 
+#### Substitution
+
+Inside the overrides object, you can reuse properties from the root by using special variables as override values.
+Variable values will be substituted by Launchpad at runtime when reading the metadata. This mechanism is intentioanlly
+kept very simple and is intended for plain copy-paste substitution without any additional processing.
+
+The syntax for substitution variables is a json path consisting of object keys or array indices joined by dots,
+wrapped in `${}`. They can also be combined and nested infinitely. For example:
+- `${some_root_key}`
+- `${some_obj.some_key}`
+- `${some_array.0.some_array_key.0}`
+
+Example usage in fabric.mod.json:
+```json
+{
+  "depends": {
+    "example-mod": "*"
+  },
+  "authors": [ "John Doe" ],
+  "custom": {
+    "launchpad:overrides": {
+      "depends": {
+        "examplemod": "${depends.example-mod}"
+      },
+      "authors": ["${authors.0}", "Bob"]
+    }
+  }
+}
+```
+
 ### NeoForge Placeholder
 
 If a user installs a Launchpad-compatible Fabric mod, but forgets to install Launchpad itself, FML has no way to tell
