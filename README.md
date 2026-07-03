@@ -13,6 +13,7 @@ A small tool for developing NeoForge mods using Fabric conventions.
   - [When not to use Launchpad](#when-not-to-use-launchpad)
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Automatic fixes](#automatic-fixes)
   - [Property overrides](#property-overrides)
   - [NeoForge Placeholder](#neoforge-placeholder)
 - [Environment](#environment)
@@ -100,9 +101,9 @@ By default, Launchpad will make minimal changes to your metadata in order to com
 Currently, the following patches are applied:
 
 1. Replacing `-` with `_` in the mod ID and dependency IDs to match the required format.
-  The original mod ID is added as an alias so that runtime checks are not affected.
+   The original mod ID is added as an alias so that runtime checks are not affected.
 
-You can disable this behavior and regain full control of your metadata by setting the following property:
+You can disable this behavior and take full control of your metadata by setting the following property:
 ```json
 {
   "custom": {
