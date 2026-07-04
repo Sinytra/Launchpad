@@ -11,13 +11,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
+import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.CreativeModeTabRegistry;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RegistryHelper {
@@ -29,6 +32,13 @@ public class RegistryHelper {
             postModifyEntityAttributes();
         } catch (Exception e) {
             LOGGER.error("Error posting EntityAttributeModificationEvent", e);
+        }
+
+        // Sort creative tabs including Fabric tabs
+        try {
+            resortCreativeTabs();
+        } catch (Exception e) {
+            LOGGER.error("Error sorting creative tabs", e);
         }
     }
 
@@ -45,5 +55,14 @@ public class RegistryHelper {
             newBuilder.combine(v);
             forgeAttributes.put(k, newBuilder.build());
         });
+    }
+
+    private static void resortCreativeTabs() {
+        List<CreativeModeTab> defaultTabs =
+            ObfuscationReflectionHelper.getPrivateValue(CreativeModeTabRegistry.class, null, "DEFAULT_TABS");
+
+        defaultTabs.clear();
+
+        CreativeModeTabRegistry.sortTabs();
     }
 }
