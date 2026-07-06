@@ -122,7 +122,7 @@ Example use cases include changing dependencies or the mod ID.
 You can define overrides using the `launchpad:overrides` custom property. Its body follows the same format as the
 outer Fabric Mod Json.
 
-```json5
+```json
 {
   "name": "Example Mod Fabric",
   "custom": {
