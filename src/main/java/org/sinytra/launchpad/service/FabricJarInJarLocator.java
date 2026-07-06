@@ -48,14 +48,25 @@ public class FabricJarInJarLocator implements IDependencyLocator {
         return -500;
     }
 
-    private static void recursivelyDiscoverNestedJars(IModFile parent, IDiscoveryPipeline pipeline, List<? super IModFile> output) {
+    private void recursivelyDiscoverNestedJars(IModFile parent, IDiscoveryPipeline pipeline, List<? super IModFile> output) {
         LoaderModMetadata metadata = (LoaderModMetadata) parent.getModFileInfo().getFileProperties().get(LaunchpadImpl.FABRIC_METADATA);
         if (metadata == null) {
+            // Find Fabric jars inside Neo jars
+            if (parent.getDiscoveryAttributes().dependencyLocator() == this) {
+                List<IModFile> results = JarInJarHelpers.scanMods(List.of(parent), pipeline, this);
+
+                for (IModFile result : results) {
+                    recursivelyDiscoverNestedJars(result, pipeline, output);
+                }
+            }
             return;
         }
 
+        // Find Fabric jars inside Fabric jars
         for (NestedJarEntry entry : metadata.getJars()) {
-            IModFile nestedFile = JarInJarHelpers.loadModFileFrom(parent, entry.getFile(), pipeline);
+            IModFile nestedFile = JarInJarHelpers.loadModFileFrom(parent, entry.getFile(), pipeline, this);
+            if (nestedFile == null) continue;
+
             output.add(nestedFile);
 
             recursivelyDiscoverNestedJars(nestedFile, pipeline, output);

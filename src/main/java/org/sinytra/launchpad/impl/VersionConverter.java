@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 public final class VersionConverter {
-    public static final String ANY = "[0,)";
+    public static final String ANY = "*";
 
     public static String convert(Collection<? extends VersionPredicate> predicates) {
         if (predicates == null || predicates.isEmpty()) {

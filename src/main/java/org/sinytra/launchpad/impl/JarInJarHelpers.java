@@ -1,129 +1,114 @@
 /*
- * Copyright (c) Forge Development LLC and contributors
- * SPDX-License-Identifier: LGPL-2.1-only
+ * Copyright (c) 2026 Sinytra
+ * SPDX-License-Identifier: GPL-3.0-only WITH Classpath-exception-2.0
  */
 
 package org.sinytra.launchpad.impl;
 
-import com.mojang.logging.LogUtils;
+import net.neoforged.fml.ModLoadingException;
+import net.neoforged.fml.ModLoadingIssue;
 import net.neoforged.fml.jarcontents.JarContents;
-import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.fml.util.PathPrettyPrinting;
-import net.neoforged.neoforgespi.locating.IDiscoveryPipeline;
-import net.neoforged.neoforgespi.locating.IModFile;
-import net.neoforged.neoforgespi.locating.ModFileDiscoveryAttributes;
-import net.neoforged.neoforgespi.locating.ModFileLoadingException;
-import org.slf4j.Logger;
+import net.neoforged.fml.loading.moddiscovery.ModFile;
+import net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator;
+import net.neoforged.jarjar.selection.JarSelector;
+import net.neoforged.neoforgespi.locating.*;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
+import java.util.*;
 
-// The following functions have been borrowed and adapted from net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator
+@SuppressWarnings({"UnstableApiUsage", "unchecked", "NonExtendableApiUsage"})
 public class JarInJarHelpers {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final IDependencyLocator INNER = new JarInJarDependencyLocator();
 
-    // See also: JarInJarDependencyLocator
-    public static IModFile loadModFileFrom(IModFile file, String relativePath, IDiscoveryPipeline pipeline) {
-        // Copy it to disk as we go, while hashing it
-        Path jijCacheDir = FMLPaths.JIJ_CACHEDIR.get();
-        Path tempFile;
+    private static final MethodHandle LOAD_RES_FROM_FILE;
+    private static final MethodHandle LOAD_MOD_FILE_FROM;
+    private static final MethodHandle IDENTIFY_MOD;
+    private static final MethodHandle EXCEPTION;
+
+    static {
         try {
-            tempFile = Files.createTempFile(jijCacheDir, "_jij", ".tmp");
-        } catch (IOException e) {
-            throw new ModFileLoadingException("Failed to create a temporary file for JIJ in " + jijCacheDir + ": " + e);
-        }
+            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(JarInJarDependencyLocator.class, MethodHandles.lookup());
 
-        // Copy the file to the temp-file, while hashing it to produce its final filename
-        Path finalPath;
-        try {
-            String checksum = extractEmbeddedJarFile(file, relativePath, tempFile);
-
-            // We must maintain the original filename, as it could be used to determine the module name and version
-            String filename = relativePath.substring(relativePath.lastIndexOf('/') + 1);
-            finalPath = jijCacheDir.resolve(checksum + "/" + filename);
-            // If the file already exists, reuse it, since it might already be opened.
-            if (!Files.isRegularFile(finalPath)) {
-                moveExtractedFileIntoPlace(tempFile, finalPath);
-            }
-
-            // Mark the extracted file with its source for the duration of this session
-            PathPrettyPrinting.addSubstitution(
-                finalPath,
-                PathPrettyPrinting.prettyPrint(file.getFilePath()) + " > " + filename,
-                ""
-            );
-        } finally {
-            try {
-                Files.deleteIfExists(tempFile);
-            } catch (IOException e) {
-                LOGGER.error("Failed to remove temporary file {}: {}", tempFile, e);
-            }
-        }
-
-        JarContents jar;
-        try {
-            jar = JarContents.ofPath(finalPath);
-        } catch (IOException e) {
-            LOGGER.error("Failed to read Jar-in-Jar file {} extracted from mod file {} to {}", relativePath, file, finalPath, e);
-            throw new ModFileLoadingException("Failed to load mod file " + relativePath + " from " + file, e);
-        }
-
-        return pipeline.readModFile(jar, ModFileDiscoveryAttributes.DEFAULT.withParent(file));
-    }
-
-    // See also: JarInJarDependencyLocator
-    private static String extractEmbeddedJarFile(IModFile file, String relativePath, Path destination) {
-        try (InputStream inStream = file.getContents().openFile(relativePath);
-             OutputStream outStream = Files.newOutputStream(destination)
-        ) {
-            if (inStream == null) {
-                LOGGER.error("Mod file {} declares Jar-in-Jar {} but does not contain it.", file, relativePath);
-                throw new ModFileLoadingException("Mod file " + file + " declares Jar-in-Jar " + relativePath + " but does not contain it.");
-            }
-
-            MessageDigest digest;
-            try {
-                digest = MessageDigest.getInstance("SHA-256");
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Missing default JCA algorithm SHA-256.", e);
-            }
-
-            var digestOut = new DigestOutputStream(outStream, digest);
-            inStream.transferTo(digestOut);
-
-            return HexFormat.of().formatHex(digest.digest());
-        } catch (IOException e) {
-            LOGGER.error("Failed to copy Jar-in-Jar file {} from mod file {} to {}", relativePath, file, destination, e);
-            throw new ModFileLoadingException("Failed to load mod file " + file.getFileName(), e);
+            LOAD_RES_FROM_FILE = lookup.findVirtual(JarInJarDependencyLocator.class, "loadResourceFromModFile", MethodType.methodType(Optional.class, IModFile.class, String.class));
+            LOAD_MOD_FILE_FROM = lookup.findVirtual(JarInJarDependencyLocator.class, "loadModFileFrom", MethodType.methodType(Optional.class, IModFile.class, String.class, IDiscoveryPipeline.class, Map.class));
+            IDENTIFY_MOD = lookup.findVirtual(JarInJarDependencyLocator.class, "identifyMod", MethodType.methodType(String.class, IModFile.class));
+            EXCEPTION = lookup.findVirtual(JarInJarDependencyLocator.class, "exception", MethodType.methodType(ModLoadingException.class, Collection.class));
+        } catch (Exception e) {
+            throw new RuntimeException("Error reflecting into JarInJarDependencyLocator", e);
         }
     }
 
-    // See also: JarInJarDependencyLocator
-    private static void moveExtractedFileIntoPlace(Path source, Path destination) {
-        try {
-            Files.createDirectories(destination.getParent());
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to create parent directory for extracted JiJ-file " + source + " at " + destination, e);
+    @Nullable
+    public static IModFile loadModFileFrom(IModFile file, String relativePath, IDiscoveryPipeline pipeline, IDependencyLocator locator) {
+        IDiscoveryPipeline wrapped = wrapPipeline(pipeline, locator);
+        return uncheck(() -> (Optional<IModFile>) LOAD_MOD_FILE_FROM.invoke(INNER, file, relativePath, wrapped, new HashMap<>()))
+            .orElse(null);
+    }
+
+    public static List<IModFile> scanMods(List<IModFile> loadedMods, IDiscoveryPipeline pipeline, IDependencyLocator locator) {
+        IDiscoveryPipeline wrapped = wrapPipeline(pipeline, locator);
+        Map<?, IModFile> createdModFiles = new HashMap<>();
+        List<IModFile> dependenciesToLoad = uncheck(() ->
+            JarSelector.detectAndSelect(
+                loadedMods,
+                (m, p) -> (Optional<InputStream>) uncheck(() -> LOAD_RES_FROM_FILE.invoke(INNER, m, p)),
+                (file, path) -> (Optional<IModFile>) uncheck(() -> LOAD_MOD_FILE_FROM.invoke(INNER, file, path, wrapped, createdModFiles)),
+                m -> (String) uncheck(() -> IDENTIFY_MOD.invoke(INNER, m)),
+                d -> (ModLoadingException) uncheck(() -> EXCEPTION.invoke(INNER, d))));
+
+        for (var modFile : dependenciesToLoad) {
+            if (!pipeline.addModFile(modFile)) {
+                ((ModFile) modFile).close();
+            }
         }
 
+        return dependenciesToLoad;
+    }
+
+    private static <T> T uncheck(CallableThrows<T> callable) {
         try {
-            try {
-                Files.move(source, destination, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-            } catch (AtomicMoveNotSupportedException ex) {
-                Files.move(source, destination, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to move temporary JiJ-file " + source + " to its final location " + destination, e);
+            return callable.call();
+        } catch (Throwable t) {
+            throw new RuntimeException("Error making unsafe call", t);
         }
+    }
+
+    @FunctionalInterface
+    interface CallableThrows<V> {
+        V call() throws Throwable;
+    }
+
+    private static IDiscoveryPipeline wrapPipeline(IDiscoveryPipeline inner, IDependencyLocator locator) {
+        return new IDiscoveryPipeline() {
+            @Override
+            public Optional<IModFile> addPath(List<Path> paths, ModFileDiscoveryAttributes attributes, IncompatibleFileReporting reporting) {
+                return inner.addPath(paths, attributes, reporting);
+            }
+
+            @Override
+            public Optional<IModFile> addJarContent(JarContents contents, ModFileDiscoveryAttributes attributes, IncompatibleFileReporting reporting) {
+                return inner.addJarContent(contents, attributes, reporting);
+            }
+
+            @Override
+            public boolean addModFile(IModFile modFile) {
+                return inner.addModFile(modFile);
+            }
+
+            @Override
+            public @Nullable IModFile readModFile(JarContents contents, ModFileDiscoveryAttributes attributes) {
+                return inner.readModFile(contents, attributes.withDependencyLocator(locator));
+            }
+
+            @Override
+            public void addIssue(ModLoadingIssue issue) {
+                inner.addIssue(issue);
+            }
+        };
     }
 }
