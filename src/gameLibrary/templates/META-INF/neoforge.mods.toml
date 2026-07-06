@@ -19,3 +19,6 @@ authors="Su5eD"
 description='''
 Develop for NeoForge in the Fabric way.
 '''
+
+[[mixins]]
+config="launchpad.mixins.json"

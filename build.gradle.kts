@@ -140,7 +140,7 @@ dependencies {
     testRuntimeOnly(libs.forgified.fabric.api)
 }
 
-listOf(sourceSets.main.get(), testmod).forEach { sourceSet ->
+listOf(sourceSets.main.get(), gameLibrary, testmod).forEach { sourceSet ->
     val taskName = sourceSet.getTaskName("generate", "ModMetadata")
     val generateModMetadata = tasks.register<ProcessResources>(taskName) {
         val replaceProperties = mapOf(
@@ -169,7 +169,6 @@ val gameLibraryJar = tasks.register("gameLibraryJar", Jar::class) {
     from("LICENSE")
 
     manifest.attributes("Implementation-Version" to project.version)
-    manifest.from("src/gameLibrary/resources/META-INF/MANIFEST.MF")
 
     archiveClassifier.set("game")
 }
