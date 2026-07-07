@@ -95,11 +95,13 @@ public class FabricModMetadata {
                 return null;
             }
 
-            if (custom != null) {
-                custom.addProperty(LaunchpadImpl.LAUNCHPAD_ACTIVE, true);
+            // Add internal control properties
+            custom.addProperty(LaunchpadImpl.LAUNCHPAD_ACTIVE, true);
+            if (!custom.has(LaunchpadImpl.POLYFILL_FLUID_TYPES)) {
+                custom.addProperty(LaunchpadImpl.POLYFILL_FLUID_TYPES, true);
             }
 
-            boolean normalize = custom == null || Optional.ofNullable(custom.getAsJsonPrimitive(Constants.NORMALIZE))
+            boolean normalize = Optional.ofNullable(custom.getAsJsonPrimitive(Constants.NORMALIZE))
                 .map(JsonPrimitive::getAsBoolean)
                 .orElse(true);
             if (normalize) {
@@ -111,7 +113,7 @@ public class FabricModMetadata {
                 normalizeModIDs(root.getAsJsonObject("conflicts"));
             }
 
-            JsonObject overrides = custom != null ? custom.getAsJsonObject(OVERRIDES) : null;
+            JsonObject overrides = custom.getAsJsonObject(OVERRIDES);
             if (overrides != null) {
                 for (Entry<String, JsonElement> entry : overrides.entrySet()) {
                     root.add(entry.getKey(), entry.getValue());

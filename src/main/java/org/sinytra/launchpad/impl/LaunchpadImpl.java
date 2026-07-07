@@ -16,6 +16,8 @@ public class LaunchpadImpl {
     public static final String LAUNCHPAD_ACTIVE = "launchpad:active";
     // Provided by forgified-fabric-loader
     public static final String FABRIC_METADATA = "fabric:metadata";
+    // Provided by forgified-fabric-api
+    public static final String POLYFILL_FLUID_TYPES = "sinytra:polyfill_fluid_types";
 
     public static final ScopedValue<Boolean> LOADING = ScopedValue.newInstance();
 

@@ -20,6 +20,7 @@ A small tool for developing NeoForge mods using Fabric conventions.
   - [Metadata](#metadata) 
   - [Entrypoints](#entrypoints)
   - [Registration](#registration)
+  - [Fluid Types](#fluid-types)
   - [Fabric loader](#fabric-loader)
   - [Caveats](#caveats)
 - [API](#api)
@@ -157,7 +158,7 @@ use this snippet:
 [[dependencies.your_mod_id]]
 modId="launchpad"
 type="required"
-versionRange="[0,)"
+versionRange="*"
 ordering="NONE"
 side="BOTH"
 ```
@@ -198,6 +199,10 @@ the registries are frozen and NeoForge's builtin registry callbacks haven't been
 
 Launchpad resolves these issues and ensures the registries are ready to receive registration calls when a mod's
 entrypoints run.
+
+### Fluid Types
+
+
 
 ### Fabric loader
 
