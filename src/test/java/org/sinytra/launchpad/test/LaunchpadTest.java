@@ -110,4 +110,9 @@ public class LaunchpadTest {
         RegistryFriendlyByteBuf output = new RegistryFriendlyByteBuf(Unpooled.buffer(), server.registryAccess(), ConnectionType.OTHER);
         assertDoesNotThrow(() -> codec.encode(output, CommonMain.APPLE));
     }
+
+    @Test
+    void testFluidTypePolyfill() {
+        assertNotNull(CommonMain.HONEY.getFluidType());
+    }
 }

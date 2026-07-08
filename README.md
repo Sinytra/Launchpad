@@ -128,7 +128,7 @@ outer Fabric Mod Json.
   "name": "Example Mod Fabric",
   "custom": {
     "launchpad:overrides": {
-      "name": "Example Mod NeoForge",
+      "name": "Example Mod NeoForge"
     }
   }
 }
@@ -202,7 +202,13 @@ entrypoints run.
 
 ### Fluid Types
 
+On NeoForge, every registered Fluid is required to provide a FluidType (NeoForge's equivalent of
+`FluidVariantAttributeHandler`). The Forgified Fabric API's transfer module bridges existing handlers to FluidTypes by
+default.
 
+For fluids that do not register a handler and don't provide a FluidType, Launchpad registers the default Fabric
+attribute handler to explicitly enable compatibility and satisfy requirements set by NeoForge. This should not
+have any impact on your fluid's behavior.
 
 ### Fabric loader
 

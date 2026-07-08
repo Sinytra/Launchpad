@@ -17,7 +17,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
+import net.minecraft.world.level.material.Fluid;
 import org.sinytra.launchpad.testmod.entity.ModEntityTypes;
+import org.sinytra.launchpad.testmod.fluid.HoneyFluid;
 import org.slf4j.Logger;
 
 public class CommonMain implements ModInitializer {
@@ -34,6 +36,9 @@ public class CommonMain implements ModInitializer {
 
     public static final ResourceKey<Fruit> APPLE_KEY = ResourceKey.create(FRUITS_KEY, Identifier.fromNamespaceAndPath(MODID, "apple"));
     public static final Fruit APPLE = new Fruit();
+    
+    public static final ResourceKey<Fluid> HONEY_KEY = ResourceKey.create(Registries.FLUID, Identifier.fromNamespaceAndPath(MODID, "honey"));
+    public static final Fluid HONEY = new HoneyFluid();
 
     public static boolean isInitialized() {
         return initialized;
@@ -47,6 +52,7 @@ public class CommonMain implements ModInitializer {
         // Try registering an item
         Registry.register(BuiltInRegistries.ITEM, WALRUS_KEY, WALRUS);
         Registry.register(FRUITS, APPLE_KEY, APPLE);
+        Registry.register(BuiltInRegistries.FLUID, HONEY_KEY, HONEY);
 
         // Register custom entity to test entity attributes initialization
         ModEntityTypes.registerModEntityTypes();

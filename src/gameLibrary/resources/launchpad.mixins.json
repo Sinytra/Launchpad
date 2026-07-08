@@ -12,8 +12,7 @@
     "launch.MinecraftMixin"
   ],
   "server": [
-    "launch.ServerMainMixin",
-    "launch.JUnitMainMixin"
+    "launch.ServerModLoaderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

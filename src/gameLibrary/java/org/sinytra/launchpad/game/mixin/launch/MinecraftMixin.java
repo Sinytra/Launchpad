@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = Minecraft.class, priority = 3000)
 public abstract class MinecraftMixin {
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;currentThread()Ljava/lang/Thread;"), remap = false)
-    private void earlyInit(GameConfig gameConfig, CallbackInfo ci) {
+    private void initFabricMods(GameConfig gameConfig, CallbackInfo ci) {
         EntrypointRunner.invokeEntrypoints();
     }
 }
