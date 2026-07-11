@@ -5,6 +5,7 @@
   "plugin": "org.sinytra.launchpad.game.LaunchpadMixinPlugin",
   "mixins": [
     "launch.DatagenModLoaderMixin",
+    "registries.BlockCallbacksMixin",
     "registries.ByteBufCodecsMixin",
     "registries.RegistryManagerMixin"
   ],
