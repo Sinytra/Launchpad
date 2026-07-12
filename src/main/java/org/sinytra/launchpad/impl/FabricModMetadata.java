@@ -155,6 +155,10 @@ public class FabricModMetadata {
         return modId.replace('-', '_');
     }
 
+    public LoaderModMetadata getMetadata() {
+        return this.metadata;
+    }
+
     public boolean isGenerated(Attributes manifestAttributes) {
         CustomValue generatedValue = this.metadata.getCustomValue(LOOM_GENERATED_PROPERTY);
         if (generatedValue != null && generatedValue.getType() == CustomValue.CvType.BOOLEAN && generatedValue.getAsBoolean()) {

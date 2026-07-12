@@ -8,6 +8,7 @@ package org.sinytra.launchpad.impl;
 import com.electronwill.nightconfig.core.UnmodifiableCommentedConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.mojang.logging.LogUtils;
+import net.fabricmc.loader.api.FabricLoader;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.jarcontents.JarContents;
 import net.neoforged.fml.loading.FMLLoader;
@@ -30,6 +31,11 @@ public final class FabricModFactoryImpl {
     public static IModFile createModFile(JarContents contents, ModFileDiscoveryAttributes discoveryAttributes, @Nullable IModFile.Type type) {
         FabricModMetadata metadata = readModMetadata(contents);
         if (metadata == null) {
+            return null;
+        }
+
+        if (!metadata.getMetadata().loadsInEnvironment(FabricLoader.getInstance().getEnvironmentType())) {
+            LOGGER.debug("Not loading mod {} ({}) in current environment", metadata.getMetadata().getId(), contents.getPrimaryPath());
             return null;
         }
 
