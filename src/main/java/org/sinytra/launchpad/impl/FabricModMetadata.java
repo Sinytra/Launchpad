@@ -17,7 +17,6 @@ import net.neoforged.fml.util.PathPrettyPrinting;
 import net.neoforged.neoforgespi.locating.ModFileInfoParser;
 import org.jetbrains.annotations.Nullable;
 import org.sinytra.launchpad.api.Constants;
-import org.sinytra.launchpad.service.FabricModJsonFileReader;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -48,9 +47,9 @@ public class FabricModMetadata {
     public static FabricModMetadata parse(JarContents contents) {
         Path path = contents.getPrimaryPath();
 
-        JarResource modsJson = contents.get(FabricModJsonFileReader.FMJ);
+        JarResource modsJson = contents.get(LaunchpadImpl.FMJ);
         if (modsJson == null) {
-            LOGGER.warn(LogMarkers.LOADING, "Mod file {} is missing {} file", path, FabricModJsonFileReader.FMJ);
+            LOGGER.warn(LogMarkers.LOADING, "Mod file {} is missing {} file", path, LaunchpadImpl.FMJ);
             return null;
         }
 

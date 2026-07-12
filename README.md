@@ -4,7 +4,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/Sinytra/Launchpad?style=flat&label=Release&include_prereleases&sort=semver)](https://github.com/Sinytra/Launchpad/releases/latest)
 [![CurseForge](https://cf.way2muchnoise.eu/short_1584761.svg)](https://www.curseforge.com/minecraft/mc-mods/launchpad)
 [![Modrinth](https://img.shields.io/modrinth/dt/voWgQoWV?logo=modrinth&label=Modrinth&color=00AF5C)](https://modrinth.com/project/launchpad)
-[![Discord](https://discordapp.com/api/guilds/1141048834177388746/widget.png?style=shield)](https://discord.sinytra.org)
+[![Discord](https://img.shields.io/discord/1141048834177388746?logo=discord&logoColor=white&label=Discord&color=5865f2)](https://discord.sinytra.org)
 
 A small tool for developing NeoForge mods using Fabric conventions.
 

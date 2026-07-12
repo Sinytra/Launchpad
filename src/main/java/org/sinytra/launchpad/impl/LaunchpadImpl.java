@@ -12,6 +12,8 @@ import java.util.Arrays;
 
 public class LaunchpadImpl {
     public static final String NAMESPACE = "launchpad";
+    // Fabric metadata file
+    public static final String FMJ = "fabric.mod.json";
     // Internal metadata properties
     public static final String LAUNCHPAD_ACTIVE = "launchpad:active";
     // Provided by forgified-fabric-loader
