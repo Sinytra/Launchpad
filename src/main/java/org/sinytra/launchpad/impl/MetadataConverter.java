@@ -23,6 +23,8 @@ import net.neoforged.neoforgespi.language.IModInfo.DependencySide;
 import net.neoforged.neoforgespi.language.IModInfo.DependencyType;
 import net.neoforged.neoforgespi.language.IModInfo.Ordering;
 import net.neoforged.neoforgespi.locating.IModFile;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -116,7 +118,7 @@ public final class MetadataConverter {
                     continue;
                 }
 
-                Config depConfig = convertDependency(dependency);
+                Config depConfig = convertDependency(modid, dependency);
                 if (depConfig != null) {
                     depConfigs.add(depConfig);
                 }
@@ -147,16 +149,27 @@ public final class MetadataConverter {
     }
 
     @Nullable
-    private static Config convertDependency(ModDependency dependency) {
+    private static Config convertDependency(String parentModId, ModDependency dependency) {
         Config config = Config.inMemory();
 
         config.add("modId", dependency.getModId());
         config.add("type", convertDepType(dependency.getKind()).name().toLowerCase(Locale.ROOT));
-        config.add("versionRange", VersionConverter.convert(dependency.getVersionRequirements()));
+        config.add("versionRange", convertDepVersion(parentModId, dependency));
         config.add("ordering", Ordering.NONE.name());
         config.add("side", DependencySide.BOTH.name());
 
         return config;
+    }
+
+    private static String convertDepVersion(String parentModId, ModDependency dependency) {
+        try {
+            String spec = VersionConverter.convert(dependency.getVersionRequirements());
+            VersionRange.createFromVersionSpec(spec); // Validate spec
+            return spec;
+        } catch (InvalidVersionSpecificationException e) {
+            LOGGER.error("Error parsing '{}' dependency '{}' version", parentModId, dependency.getModId(), e);
+            return "*";
+        }
     }
 
     private static DependencyType convertDepType(Kind kind) {
