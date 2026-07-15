@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.testframework.junit.EphemeralTestServerProvider;
 import org.junit.jupiter.api.Assertions;
@@ -114,5 +115,10 @@ public class LaunchpadTest {
     @Test
     void testFluidTypePolyfill() {
         assertNotNull(CommonMain.HONEY.getFluidType());
+    }
+
+    @Test
+    void testEnumExtensionMetadata() {
+        assertNotNull(RecipeBookType.valueOf("LAUNCHPAD_TESTMOD_TEST"));
     }
 }

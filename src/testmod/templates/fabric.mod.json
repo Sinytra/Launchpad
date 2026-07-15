@@ -25,6 +25,7 @@
   },
   "provides": ["not_examplemod"],
   "custom": {
+    "launchpad:enum_extensions": "META-INF/launchpad-test-enumextensions.json",
     "launchpad:compatible": true,
     "launchpad:overrides": {
       "provides": ["examplemod"]

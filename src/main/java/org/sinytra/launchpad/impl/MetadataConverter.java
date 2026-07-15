@@ -9,6 +9,7 @@ import com.electronwill.nightconfig.core.Config;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.metadata.ContactInformation;
+import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.ModDependency;
 import net.fabricmc.loader.api.metadata.ModDependency.Kind;
 import net.fabricmc.loader.api.metadata.Person;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static org.sinytra.launchpad.impl.LaunchpadImpl.FABRIC_METADATA;
 import static org.sinytra.launchpad.impl.LaunchpadImpl.LAUNCHPAD_ACTIVE;
+import static org.sinytra.launchpad.api.Constants.ENUM_EXTENSIONS;
 
 public final class MetadataConverter {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -97,6 +99,11 @@ public final class MetadataConverter {
         modConfig.add("credits", metadata.getContributors().stream()
             .map(Person::getName)
             .collect(Collectors.joining(", ")));
+
+        CustomValue enumExtensions = metadata.getCustomValue(ENUM_EXTENSIONS);
+        if (enumExtensions != null && enumExtensions.getType() == CustomValue.CvType.STRING) {
+            modConfig.add("enumExtensions", enumExtensions.getAsString());
+        }
 
         config.add("mods", List.of(modConfig));
 

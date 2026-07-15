@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {
+      "enum": "net/minecraft/world/inventory/RecipeBookType",
+      "name": "LAUNCHPAD_TESTMOD_TEST",
+      "constructor": "()V",
+      "parameters": []
+    }
+  ]
+}
