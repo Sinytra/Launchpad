@@ -20,7 +20,7 @@ public class InDevFabricJarLocator implements IModFileCandidateLocator {
     public void findCandidates(ILaunchContext context, IDiscoveryPipeline pipeline) {
         for (var path : ClasspathResourceUtils.findFileSystemRootsOfFileOnClasspath(LaunchpadImpl.FMJ)) {
             if (Files.isRegularFile(path)) {
-                pipeline.addPath(path, ModFileDiscoveryAttributes.DEFAULT, IncompatibleFileReporting.WARN_ON_KNOWN_INCOMPATIBILITY);
+                pipeline.addPath(path, ModFileDiscoveryAttributes.DEFAULT, IncompatibleFileReporting.IGNORE);
             }
         }
     }
