@@ -5,6 +5,8 @@
 
 package org.sinytra.launchpad.impl;
 
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.neoforged.fml.ModLoadingException;
 import net.neoforged.fml.ModLoadingIssue;
 
@@ -32,5 +34,10 @@ public class LaunchpadImpl {
             null, null, null
         );
         throw new ModLoadingException(issue);
+    }
+
+    public static boolean isLaunchpadMod(String modId) {
+        ModContainer source = FabricLoader.getInstance().getModContainer(modId).orElse(null);
+        return source != null && source.getMetadata().containsCustomValue(LaunchpadImpl.LAUNCHPAD_ACTIVE);
     }
 }

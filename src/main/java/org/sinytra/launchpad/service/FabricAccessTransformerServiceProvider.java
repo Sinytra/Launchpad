@@ -18,6 +18,7 @@ import net.neoforged.neoforgespi.transformation.ProcessorName;
 import org.sinytra.launchpad.api.Constants;
 import org.sinytra.launchpad.impl.ClassTweakerConverter;
 import org.sinytra.launchpad.impl.LaunchpadImpl;
+import org.sinytra.launchpad.impl.EnvironmentSetup;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -27,6 +28,11 @@ import java.util.Objects;
 
 public class FabricAccessTransformerServiceProvider implements ClassProcessorProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    public FabricAccessTransformerServiceProvider() {
+        // The mixin service has been initialized at this point
+        EnvironmentSetup.enableEnumExtensions();
+    }
 
     @Override
     public void createProcessors(Context context, Collector collector) {

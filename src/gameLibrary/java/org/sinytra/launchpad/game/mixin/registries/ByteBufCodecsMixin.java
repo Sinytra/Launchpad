@@ -6,8 +6,6 @@
 package org.sinytra.launchpad.game.mixin.registries;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,8 +25,7 @@ public interface ByteBufCodecsMixin {
         )
     )
     private static boolean bypassSyncCheck(boolean original, RegistryFriendlyByteBuf buffer, ResourceKey<? extends Registry<?>> registryKey) {
-        ModContainer source = FabricLoader.getInstance().getModContainer(registryKey.identifier().getNamespace()).orElse(null);
-        if (source != null && source.getMetadata().containsCustomValue(LaunchpadImpl.LAUNCHPAD_ACTIVE)) {
+        if (LaunchpadImpl.isLaunchpadMod(registryKey.identifier().getNamespace())) {
             return false;
         }
         return original;

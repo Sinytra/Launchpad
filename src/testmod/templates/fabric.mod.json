@@ -23,6 +23,9 @@
     "fabricloader": ">=0.18",
     "fabric-api": "*"
   },
+  "mixins": [
+    "launchpad-testmod.mixins.json"
+  ],
   "provides": ["not_examplemod"],
   "custom": {
     "launchpad:compatible": true,

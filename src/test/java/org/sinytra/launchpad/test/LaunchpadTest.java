@@ -16,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.testframework.junit.EphemeralTestServerProvider;
@@ -30,6 +31,7 @@ import org.sinytra.launchpad.testmod.entity.ModEntityTypes;
 import java.lang.reflect.AccessFlag;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -114,5 +116,12 @@ public class LaunchpadTest {
     @Test
     void testFluidTypePolyfill() {
         assertNotNull(CommonMain.HONEY.getFluidType());
+    }
+    
+    @Test
+    void testExtendedEnum() {
+        RecipeBookType entry = assertDoesNotThrow(() -> RecipeBookType.valueOf("EXAMPLE_MOD_RECIPE_BOOK_TYPE"));
+        assertTrue(Arrays.asList(RecipeBookType.values()).contains(entry), "Expected enum values to contain injected item");
+        assertEquals(4, entry.ordinal());
     }
 }
