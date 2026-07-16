@@ -21,6 +21,7 @@ A small tool for developing NeoForge mods using Fabric conventions.
   - [Entrypoints](#entrypoints)
   - [Registration](#registration)
   - [Fluid Types](#fluid-types)
+  - [Enum extensions](#enum-extensions)
   - [Fabric loader](#fabric-loader)
   - [Caveats](#caveats)
 - [API](#api)
@@ -209,6 +210,13 @@ default.
 For fluids that do not register a handler and don't provide a FluidType, Launchpad registers the default Fabric
 attribute handler to explicitly enable compatibility and satisfy requirements set by NeoForge. This should not
 have any impact on your fluid's behavior.
+
+### Enum extensions
+
+By default, NeoForge only allows using Mixin enum extensions on enums that do not implement `IExtensibleEnum`.
+Users are instead redirected to use Neo's own extension method as a way of enforcing "best practices".
+
+Mods loaded by Launchpad are made exempt from this rule and can freely extend any enum.
 
 ### Fabric loader
 
