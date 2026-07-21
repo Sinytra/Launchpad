@@ -8,16 +8,22 @@ package org.sinytra.launchpad.test;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.testframework.junit.EphemeralTestServerProvider;
 import org.junit.jupiter.api.Assertions;
@@ -32,6 +38,7 @@ import java.lang.reflect.AccessFlag;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -117,11 +124,21 @@ public class LaunchpadTest {
     void testFluidTypePolyfill() {
         assertNotNull(CommonMain.HONEY.getFluidType());
     }
-    
+
     @Test
     void testExtendedEnum() {
         RecipeBookType entry = assertDoesNotThrow(() -> RecipeBookType.valueOf("EXAMPLE_MOD_RECIPE_BOOK_TYPE"));
         assertTrue(Arrays.asList(RecipeBookType.values()).contains(entry), "Expected enum values to contain injected item");
         assertEquals(4, entry.ordinal());
+    }
+
+    @Test
+    void testTooltipComponentSorting(MinecraftServer server) {
+        ItemStack stack = new ItemStack(Items.DIAMOND_SWORD);
+        stack.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
+
+        List<Component> components = stack.getTooltipLines(Item.TooltipContext.EMPTY, null, TooltipFlag.NORMAL);
+        assertEquals("This Item is Happy", components.get(components.size() - 2).getString());
+        assertEquals("Unbreakable", components.getLast().getString());
     }
 }

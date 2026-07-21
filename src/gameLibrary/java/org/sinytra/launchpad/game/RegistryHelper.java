@@ -16,6 +16,7 @@ import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.CreativeModeTabRegistry;
+import net.neoforged.neoforge.common.tooltip.ItemTooltipHandler;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import org.slf4j.Logger;
 
@@ -39,6 +40,13 @@ public class RegistryHelper {
             resortCreativeTabs();
         } catch (Exception e) {
             LOGGER.error("Error sorting creative tabs", e);
+        }
+
+        // Re-init tooltip appenders to account for Fabric mods
+        try {
+            reinitTooltipAppenders();
+        } catch (Exception e ){
+            LOGGER.error("Error initializing tooltip appenders", e);
         }
     }
 
@@ -64,5 +72,9 @@ public class RegistryHelper {
         defaultTabs.clear();
 
         CreativeModeTabRegistry.sortTabs();
+    }
+    
+    private static void reinitTooltipAppenders() {
+        ItemTooltipHandler.init();
     }
 }

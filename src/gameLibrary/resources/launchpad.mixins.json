@@ -7,6 +7,7 @@
     "launch.DatagenModLoaderMixin",
     "registries.BlockCallbacksMixin",
     "registries.ByteBufCodecsMixin",
+    "registries.ItemTooltipHandlerMixin",
     "registries.RegistryManagerMixin"
   ],
   "client": [
