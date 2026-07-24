@@ -22,7 +22,7 @@ public class FabricModJsonFileReader implements IModFileReader {
     @Override
     @Nullable
     public IModFile read(JarContents jar, ModFileDiscoveryAttributes attributes) {
-        IModFile file = FabricModFactoryImpl.createModFile(jar, attributes.withReader(this), null);
+        IModFile file = FabricModFactoryImpl.createModFile(jar, attributes.withReader(this), null).result().orElse(null);
         if (file != null) {
             LOGGER.debug(LogMarkers.SCAN, "Found {} mod: {}", LaunchpadImpl.FMJ, jar.getPrimaryPath());
         }

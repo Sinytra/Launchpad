@@ -8,6 +8,7 @@ package org.sinytra.launchpad.impl;
 import com.electronwill.nightconfig.core.UnmodifiableCommentedConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.DataResult;
 import net.fabricmc.loader.api.FabricLoader;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.jarcontents.JarContents;
@@ -27,21 +28,21 @@ import java.util.jar.Attributes;
 public final class FabricModFactoryImpl {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    @Nullable
-    public static IModFile createModFile(JarContents contents, ModFileDiscoveryAttributes discoveryAttributes, @Nullable IModFile.Type type) {
+    public static DataResult<IModFile> createModFile(JarContents contents, ModFileDiscoveryAttributes discoveryAttributes, @Nullable IModFile.Type type) {
         FabricModMetadata metadata = readModMetadata(contents);
         if (metadata == null) {
-            return null;
+            return DataResult.error(() -> "Could not parse mod metadata");
         }
 
         if (!metadata.getMetadata().loadsInEnvironment(FabricLoader.getInstance().getEnvironmentType())) {
             LOGGER.debug("Not loading mod {} ({}) in current environment", metadata.getMetadata().getId(), contents.getPrimaryPath());
-            return null;
+            return DataResult.error(() -> "Mod can not be loaded in the current environment");
         }
 
         Attributes manifest = contents.getManifest().getMainAttributes();
         if (isLibraryType(type) || metadata.isGenerated(manifest)) {
-            return IModFile.create(contents, JarModsDotTomlModFileReader::manifestParser, type, discoveryAttributes);
+            IModFile modFile = IModFile.create(contents, JarModsDotTomlModFileReader::manifestParser, type, discoveryAttributes);
+            return modFile != null ? DataResult.success(modFile) : DataResult.error(() -> "FML could not parse library ModFile");
         }
 
         ModJarMetadata mjm = new ModJarMetadata();
@@ -49,13 +50,14 @@ public final class FabricModFactoryImpl {
         IModFile modFile = IModFile.create(contents, mjm, metadata.createNeoMetadataFactory(dist), IModFile.Type.MOD, discoveryAttributes);
         mjm.setModFile(modFile);
 
-        return modFile;
+        return modFile != null ? DataResult.success(modFile) : DataResult.error(() -> "FML could not parse ModFile");
     }
 
     private static boolean isLibraryType(@Nullable IModFile.Type type) {
         return type == IModFile.Type.LIBRARY || type == IModFile.Type.GAMELIBRARY;
     }
 
+    @Nullable
     private static FabricModMetadata readModMetadata(JarContents contents) {
         if (!contents.containsFile(LaunchpadImpl.FMJ) || isNeoForgeMod(contents)) {
             return null;
