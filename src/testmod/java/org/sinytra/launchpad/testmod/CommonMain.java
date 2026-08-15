@@ -5,16 +5,20 @@
 
 package org.sinytra.launchpad.testmod;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -52,6 +56,8 @@ public class CommonMain implements ModInitializer {
 
     public static final ResourceKey<Registry<Vegetable>> VEGETABLES = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(MODID, "vegetable"));
     public static final ResourceKey<Vegetable> TOMATO = ResourceKey.create(VEGETABLES, Identifier.fromNamespaceAndPath(MODID, "tomato"));
+    
+    public static final ResourceKey<ArgumentTypeInfo<?, ?>> EXAMPLE_ARGUMENT_TYPE = ResourceKey.create(Registries.COMMAND_ARGUMENT_TYPE, Identifier.fromNamespaceAndPath(MODID, "example"));
 
     public static boolean isInitialized() {
         return initialized;
@@ -83,6 +89,13 @@ public class CommonMain implements ModInitializer {
 
         // Add Dynamic registry
         DynamicRegistries.register(VEGETABLES, Vegetable.CODEC);
+
+        // Add Command Argument Type
+        ArgumentTypeRegistry.registerArgumentType(
+            EXAMPLE_ARGUMENT_TYPE.identifier(),
+            StringArgumentType.class,
+            SingletonArgumentInfo.contextFree(StringArgumentType::word)
+        );
     }
 
     private void initTooltipProviders() {

@@ -6,6 +6,10 @@
 package org.sinytra.launchpad.game;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -21,8 +25,10 @@ import net.neoforged.neoforge.common.CreativeModeTabRegistry;
 import net.neoforged.neoforge.common.tooltip.ItemTooltipHandler;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +43,13 @@ public class RegistryHelper {
             postDataPackRegistryEvent();
         } catch (Exception e) {
             LOGGER.error("Error posting DataPackRegistryEvent.NewRegistry event", e);
+        }
+
+        // Post RegisterEvent for COMMAND_ARGUMENT_TYPE
+        try {
+            postRegisterCommandsEvent();
+        } catch (Exception e) {
+            LOGGER.error("Error posting RegisterEvent event for COMMAND_ARGUMENT_TYPE", e);
         }
 
         // Post EntityAttributeModificationEvent
@@ -70,6 +83,17 @@ public class RegistryHelper {
             Method method = DataPackRegistryEvent.NewRegistry.class.getDeclaredMethod("process");
             method.setAccessible(true);
             method.invoke(event);
+        }
+    }
+
+    private static void postRegisterCommandsEvent() throws Exception {
+        ModContainer container = ModList.get().getModContainerById("fabric_command_api_v2").orElse(null);
+        if (container != null) {
+            Constructor<?> ctr = ObfuscationReflectionHelper.findConstructor(RegisterEvent.class, ResourceKey.class, Registry.class);
+            ctr.setAccessible(true);
+
+            RegisterEvent event = (RegisterEvent) ctr.newInstance(Registries.COMMAND_ARGUMENT_TYPE, BuiltInRegistries.COMMAND_ARGUMENT_TYPE);
+            container.getEventBus().post(event);
         }
     }
 

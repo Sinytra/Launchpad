@@ -144,13 +144,19 @@ public class LaunchpadTest {
         assertEquals("This Item is Happy", components.get(components.size() - 2).getString());
         assertEquals("Unbreakable", components.getLast().getString());
     }
-    
+
     @Test
     void testDynamicRegistry(MinecraftServer server) {
         Registry<Vegetable> registry = server.registryAccess().lookup(CommonMain.VEGETABLES).orElse(null);
         assertNotNull(registry, "Expected dynamic registry to exist");
-        
+
         Holder<Vegetable> entry = registry.get(CommonMain.TOMATO).orElse(null);
         assertNotNull(entry, "Expected dynamic registry item to exixt");
+    }
+
+    @Test
+    void testArgumentType(MinecraftServer server) {
+        Holder<?> holder = server.registryAccess().get(CommonMain.EXAMPLE_ARGUMENT_TYPE).orElse(null);
+        assertNotNull(holder, "Expected argument type to be registered");
     }
 }
