@@ -6,8 +6,11 @@
 package org.sinytra.launchpad.testmod;
 
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
@@ -47,6 +50,9 @@ public class CommonMain implements ModInitializer {
     public static final ResourceKey<Fluid> HONEY_KEY = ResourceKey.create(Registries.FLUID, Identifier.fromNamespaceAndPath(MODID, "honey"));
     public static final Fluid HONEY = new HoneyFluid();
 
+    public static final ResourceKey<Registry<Vegetable>> VEGETABLES = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(MODID, "vegetable"));
+    public static final ResourceKey<Vegetable> TOMATO = ResourceKey.create(VEGETABLES, Identifier.fromNamespaceAndPath(MODID, "tomato"));
+
     public static boolean isInitialized() {
         return initialized;
     }
@@ -74,6 +80,9 @@ public class CommonMain implements ModInitializer {
                 builder.add(Attributes.TEMPT_RANGE, 2.0);
             });
         });
+
+        // Add Dynamic registry
+        DynamicRegistries.register(VEGETABLES, Vegetable.CODEC);
     }
 
     private void initTooltipProviders() {
@@ -93,5 +102,11 @@ public class CommonMain implements ModInitializer {
     }
 
     public record Fruit() {
+    }
+
+    public record Vegetable(String name) {
+        public static final Codec<Vegetable> CODEC = RecordCodecBuilder.create(i -> i.group(
+            Codec.STRING.fieldOf("name").forGetter(Vegetable::name)
+        ).apply(i, Vegetable::new));
     }
 }

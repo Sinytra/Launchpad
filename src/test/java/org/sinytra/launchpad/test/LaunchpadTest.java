@@ -8,6 +8,8 @@ package org.sinytra.launchpad.test;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -31,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sinytra.launchpad.testmod.CommonMain;
 import org.sinytra.launchpad.testmod.CommonMain.Fruit;
+import org.sinytra.launchpad.testmod.CommonMain.Vegetable;
 import org.sinytra.launchpad.testmod.PrelaunchMain;
 import org.sinytra.launchpad.testmod.entity.ModEntityTypes;
 
@@ -140,5 +143,14 @@ public class LaunchpadTest {
         List<Component> components = stack.getTooltipLines(Item.TooltipContext.EMPTY, null, TooltipFlag.NORMAL);
         assertEquals("This Item is Happy", components.get(components.size() - 2).getString());
         assertEquals("Unbreakable", components.getLast().getString());
+    }
+    
+    @Test
+    void testDynamicRegistry(MinecraftServer server) {
+        Registry<Vegetable> registry = server.registryAccess().lookup(CommonMain.VEGETABLES).orElse(null);
+        assertNotNull(registry, "Expected dynamic registry to exist");
+        
+        Holder<Vegetable> entry = registry.get(CommonMain.TOMATO).orElse(null);
+        assertNotNull(entry, "Expected dynamic registry item to exixt");
     }
 }
