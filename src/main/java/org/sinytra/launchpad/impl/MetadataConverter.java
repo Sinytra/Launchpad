@@ -73,7 +73,10 @@ public final class MetadataConverter {
 
         modConfig.add("displayName", metadata.getName());
         modConfig.add("description", metadata.getDescription());
-        metadata.getIconPath(-1).ifPresent(icon -> modConfig.add("logoFile", icon));
+        metadata.getIconPath(-1).ifPresent(icon -> {
+			modConfig.add("logoFile", icon);
+            modConfig.add("iconFile", icon);
+        });
 
         ContactInformation contact = metadata.getContact();
         contact.get("homepage")
