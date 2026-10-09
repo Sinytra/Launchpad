@@ -1,4 +1,5 @@
 classTweaker  v1  official
+
 # Make class public
 accessible	class	net/minecraft/util/Crypt$ByteArrayToKeyFunction
 # Make method public
@@ -6,3 +7,6 @@ accessible	method	net/minecraft/util/Util	makeExecutor	(Ljava/lang/String;)Lnet/
 # Make field public-f
 accessible	field	net/minecraft/server/MinecraftServer	random	Lnet/minecraft/util/RandomSource;
 mutable	field	net/minecraft/server/MinecraftServer	random	Lnet/minecraft/util/RandomSource;
+
+# Inject interface
+inject-interface  net/minecraft/server/MinecraftServer  org/sinytra/launchpad/testmod/Server

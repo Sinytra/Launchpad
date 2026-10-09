@@ -7,6 +7,7 @@ package org.sinytra.launchpad.impl;
 
 import net.fabricmc.classtweaker.api.AccessWidener;
 import net.fabricmc.classtweaker.api.ClassTweaker;
+import net.fabricmc.classtweaker.api.InjectedInterface;
 import net.fabricmc.classtweaker.utils.EntryTriple;
 import net.neoforged.neoforgespi.transformation.ClassProcessor;
 import net.neoforged.neoforgespi.transformation.ClassProcessorIds;
@@ -55,6 +56,7 @@ public class ClassTweakerProcessor implements ClassProcessor {
         ClassNode node = context.node();
 
         applyAW(node);
+        applyInterfaceInjections(node);
 
         return ComputeFlags.SIMPLE_REWRITE;
     }
@@ -102,6 +104,35 @@ public class ClassTweakerProcessor implements ClassProcessor {
                     }
                 }
             }
+        }
+    }
+
+    private void applyInterfaceInjections(ClassNode node) {
+        List<InjectedInterface> injections = this.classTweaker.getInjectedInterfaces(node.name);
+        if (injections.isEmpty()) {
+            return;
+        }
+
+        StringBuilder signature = node.signature != null ? new StringBuilder(node.signature) : null;
+
+        if (signature == null && injections.stream().anyMatch(InjectedInterface::hasGenerics)) {
+            signature = new StringBuilder("L").append(node.superName).append(";");
+            for (String itf : node.interfaces) {
+                signature.append("L").append(itf).append(";");
+            }
+        }
+
+        for (InjectedInterface injection : injections) {
+            if (!node.interfaces.contains(injection.getInterfaceName())) {
+                node.interfaces.add(injection.getInterfaceName());
+                if (signature != null) {
+                    signature.append(injection.getInterfaceSignature());
+                }
+            }
+        }
+
+        if (signature != null) {
+            node.signature = signature.toString();
         }
     }
 

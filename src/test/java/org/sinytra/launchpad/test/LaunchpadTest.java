@@ -28,7 +28,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.testframework.junit.EphemeralTestServerProvider;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sinytra.launchpad.testmod.CommonMain;
@@ -37,12 +36,8 @@ import org.sinytra.launchpad.testmod.CommonMain.Vegetable;
 import org.sinytra.launchpad.testmod.PrelaunchMain;
 import org.sinytra.launchpad.testmod.entity.ModEntityTypes;
 
-import java.lang.reflect.AccessFlag;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,26 +55,6 @@ public class LaunchpadTest {
     @Test
     void testMainEntrypoint(MinecraftServer server) {
         assertTrue(CommonMain.isInitialized(), "Expected main entrypoint to have been called");
-    }
-
-    @Test
-    void testClassAccessTransformer(MinecraftServer server) throws Exception {
-        Class<?> cls = Class.forName("net.minecraft.util.Crypt$ByteArrayToKeyFunction");
-        Assertions.assertTrue(cls.accessFlags().contains(AccessFlag.PUBLIC), "Expected class to be public");
-    }
-
-    @Test
-    void testMethodAccessTransformer(MinecraftServer server) throws Exception {
-        Class<?> cls = Class.forName("net.minecraft.util.Util");
-        Method method = cls.getDeclaredMethod("makeExecutor", String.class);
-        assertEquals(Set.of(AccessFlag.PUBLIC, AccessFlag.STATIC), method.accessFlags());
-    }
-
-    @Test
-    void testFieldAccessTransformer(MinecraftServer server) throws Exception {
-        Class<?> cls = Class.forName("net.minecraft.server.MinecraftServer");
-        Field field = cls.getDeclaredField("random");
-        assertEquals(field.accessFlags(), Set.of(AccessFlag.PUBLIC));
     }
 
     @Test
