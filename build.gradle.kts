@@ -14,20 +14,18 @@ plugins {
     idea
 }
 
-val mod_group_id: String by project
-val mod_id: String by project
-val mod_name: String by project
-val mod_license: String by project
-val mod_license_spdx: String by project
-val neo_version: String by project
-val minecraft_version: String by project
-val launchpad_version: String by project
+val mod_group_id = project.property("mod_group_id") as String
+val mod_id = project.property("mod_id") as String
+val mod_name = project.property("mod_name") as String
+val mod_license = project.property("mod_license") as String
+val mod_license_spdx = project.property("mod_license_spdx") as String
+val neo_version = project.property("neo_version") as String
+val minecraft_version = project.property("minecraft_version") as String
+val launchpad_version = project.property("launchpad_version") as String
 
-val compatible_versions: String by project
-val curseforge_id: String by project
-val modrinth_id: String by project
-val github_repo: String by project
-val publish_branch: String by project
+val compatible_versions = project.property("compatible_versions") as String
+val curseforge_id = project.property("curseforge_id") as String
+val modrinth_id = project.property("modrinth_id") as String
 
 val PUBLISH_RELEASE_TYPE = providers.environmentVariable("PUBLISH_RELEASE_TYPE")
 
@@ -281,8 +279,8 @@ publishMods {
 
     github {
         accessToken = providers.environmentVariable("GITHUB_TOKEN")
-        repository = github_repo
-        commitish = publish_branch
+        repository = providers.environmentVariable("GITHUB_REPOSITORY").orElse("")
+        commitish = providers.environmentVariable("GITHUB_SHA").orElse("")
     }
     curseforge {
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
