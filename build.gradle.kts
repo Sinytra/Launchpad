@@ -147,6 +147,7 @@ listOf(sourceSets.main.get(), gameLibrary, testmod).forEach { sourceSet ->
             "mod_license" to mod_license,
             "mod_license_spdx" to mod_license_spdx,
             "mod_version" to project.version,
+            "neo_version" to neo_version,
         )
         inputs.properties(replaceProperties)
         expand(replaceProperties)
