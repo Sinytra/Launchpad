@@ -18,7 +18,7 @@ public final class Constants {
     public static final String PLACEHOLDER = "launchpad:placeholder";
 
     // Services
-    public static final ProcessorName AT_PROCESSOR = new ProcessorName(LaunchpadImpl.NAMESPACE, "access_transformer");
+    public static final ProcessorName CT_PROCESSOR = new ProcessorName(LaunchpadImpl.NAMESPACE, "class_tweaker");
 
     private Constants() {
     }
