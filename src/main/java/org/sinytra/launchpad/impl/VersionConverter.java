@@ -25,7 +25,7 @@ public final class VersionConverter {
         }
         List<VersionInterval> intervals = new ArrayList<>(predicates.size());
         for (VersionPredicate predicate : predicates) {
-            intervals.add(predicate.getInterval());
+            intervals = VersionInterval.or(intervals, predicate.getInterval());
         }
         return convertIntervals(intervals);
     }
