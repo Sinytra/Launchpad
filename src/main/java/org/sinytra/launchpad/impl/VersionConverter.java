@@ -5,6 +5,7 @@
 
 package org.sinytra.launchpad.impl;
 
+import net.fabricmc.loader.api.SemanticVersion;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.metadata.version.VersionInterval;
 import net.fabricmc.loader.api.metadata.version.VersionPredicate;
@@ -15,6 +16,8 @@ import java.util.List;
 
 public final class VersionConverter {
     public static final String ANY = "*";
+    private static final String BUILD_METADATA_CEILING = "+~";
+    private static final String LOWEST_PRERELEASE = "alpha";
 
     public static String convert(Collection<? extends VersionPredicate> predicates) {
         if (predicates == null || predicates.isEmpty()) {
@@ -58,11 +61,21 @@ public final class VersionConverter {
             return ANY;
         }
 
-        String min = minV == null ? null : minV.getFriendlyString();
-        String max = maxV == null ? null : maxV.getFriendlyString();
+        String min = minV == null ? null : toMavenVersion(minV);
+        String max = maxV == null ? null : toMavenVersion(maxV);
 
         if (min != null && min.equals(max) && !minInclusive && !maxInclusive) {
             return null;
+        }
+
+        // Work around NeoForge comparing with metadata in mind while Fabric does not
+        if (max != null && maxInclusive && maxV instanceof SemanticVersion) {
+            max += BUILD_METADATA_CEILING;
+            maxInclusive = false;
+        }
+        if (min != null && !minInclusive && minV instanceof SemanticVersion) {
+            min += BUILD_METADATA_CEILING;
+            minInclusive = true;
         }
 
         if (min != null && min.equals(max) && minInclusive && maxInclusive) {
@@ -80,6 +93,20 @@ public final class VersionConverter {
         }
         sb.append(maxInclusive ? ']' : ')');
         return sb.toString();
+    }
+
+    private static String toMavenVersion(Version version) {
+        String str = version.getFriendlyString();
+        if (version instanceof SemanticVersion) {
+            int buildIdx = str.indexOf('+');
+            if (buildIdx >= 0) {
+                str = str.substring(0, buildIdx);
+            }
+            if (str.endsWith("-")) {
+                str += LOWEST_PRERELEASE;
+            }
+        }
+        return str;
     }
 
     private VersionConverter() {
